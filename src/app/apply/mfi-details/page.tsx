@@ -101,7 +101,7 @@ export default function MfiDetailsPage() {
     );
   }
 
-  if (!mfi) {
+  if (!mfi && !error) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
         <Loader2 className="h-12 w-12 animate-spin text-accent" />
@@ -109,6 +109,23 @@ export default function MfiDetailsPage() {
       </div>
     );
   }
+  
+  // This check is important to ensure 'mfi' is not null before trying to access its properties
+  if (!mfi) {
+    // This case should ideally be covered by the loader or error state above,
+    // but as a fallback:
+    return (
+         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] text-center">
+            <AlertTriangle className="h-16 w-16 text-muted-foreground mb-4" />
+            <CardTitle className="text-2xl mb-2 text-teal-700">MFI Not Loaded</CardTitle>
+            <CardDescription className="mb-4">MFI details could not be loaded. Please try again.</CardDescription>
+            <Button asChild variant="outline">
+              <Link href="/apply"><ArrowLeft className="mr-2 h-4 w-4" />Back to Application</Link>
+            </Button>
+        </div>
+    );
+  }
+
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -228,5 +245,3 @@ const InfoItem = ({ icon, label, value, isContact = false }: InfoItemProps) => (
     </div>
   </div>
 );
-    
-    
