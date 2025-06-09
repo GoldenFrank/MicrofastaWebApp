@@ -54,7 +54,7 @@ Output:
 - **isEligible**: True if you estimate they can get some loan amount, false otherwise.
 - **eligibleAmount**: The maximum loan amount you estimate they could be eligible for. If not eligible, this should be 0. Round to the nearest KES 1000.
 - **feedback**: Explain your reasoning. Mention the inferred vehicle age (if possible), how income relates to the requested amount, and the impact of the Mpesa statement provision.
-- **missingInfo**: If critical details like vehicle year are missing from `logbookDetails` string, specify that here.
+- **missingInfo**: If critical details like vehicle year are missing from \`logbookDetails\` string, specify that here.
 
 Applicant Details:
 - Logbook Details: {{{logbookDetails}}}
@@ -82,3 +82,4 @@ const checkLoanEligibilityFlow = ai.defineFlow(
     return output;
   }
 );
+
