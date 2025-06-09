@@ -1,29 +1,16 @@
+
 'use client'; // This page uses client-side hooks (useState, useAuth)
 
 import React, { useState, useEffect } from 'react';
 import LoanApplicationForm from '@/components/loan/LoanApplicationForm';
 import MfiComparisonTable from '@/components/loan/MfiComparisonTable';
-import { matchMfiInstitutions, type MfiMatchingInput, type MfiMatchingOutput } from '@/ai/flows/mfi-matching';
+import { type MfiMatchingInput, type MfiMatchingOutput } from '@/ai/flows/mfi-matching';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Terminal, Loader2 } from "lucide-react";
-
-// Server action to call the AI flow
-async function submitLoanApplicationAction(data: MfiMatchingInput): Promise<MfiMatchingOutput | { error: string }> {
-  'use server';
-  try {
-    // console.log("Submitting to AI with data:", data); // Log input for debugging
-    const result = await matchMfiInstitutions(data);
-    // console.log("AI Result:", result); // Log output for debugging
-    return result;
-  } catch (error) {
-    console.error("Error in AI matching flow:", error);
-    return { error: (error instanceof Error ? error.message : "An unknown error occurred during MFI matching.") };
-  }
-}
-
+import { submitLoanApplicationAction } from './actions'; // Import the server action
 
 export default function ApplyPage() {
   const [mfiResults, setMfiResults] = useState<MfiMatchingOutput | null>(null);
