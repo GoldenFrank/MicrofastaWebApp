@@ -31,9 +31,8 @@ export default function KycUploadPage() {
 
   useEffect(() => {
     if (!authLoading && !user) {
-      // Preserve the MFI parameter if redirecting to login
       const mfiParam = searchParams.get('mfi');
-      const redirectPath = mfiParam ? `/kyc-upload?mfi=${encodeURIComponent(mfiParam)}` : '/kyc-upload'; // Re-encode if passing along
+      const redirectPath = mfiParam ? `/kyc-upload?mfi=${encodeURIComponent(mfiParam)}` : '/kyc-upload';
       router.push(`/login?redirect=${encodeURIComponent(redirectPath)}`);
     }
   }, [user, authLoading, router, searchParams]);
@@ -45,8 +44,8 @@ export default function KycUploadPage() {
       try {
         decodedMfiParam = decodeURIComponent(mfiParam);
       } catch (uriError) {
-        console.error("Failed to decode MFI parameter:", uriError);
         setError("Invalid MFI data in URL. It might be corrupted or improperly encoded. Please go back and try again.");
+        console.error("Failed to decode MFI parameter:", uriError);
         return;
       }
 
@@ -61,16 +60,15 @@ export default function KycUploadPage() {
         console.error("Failed to parse MFI JSON data:", jsonError);
         setError("Could not load MFI details due to a parsing error. Please go back and try again.");
       }
-    } else if (!authLoading && user) { // Only set error if not loading and user is present (i.e., not about to be redirected)
+    } else if (!authLoading && user) { 
       setError("No MFI selected. Please go back and select an MFI from the application page.");
     }
-  }, [searchParams, authLoading, user]); // Removed mfi from dependencies as it's being set here
+  }, [searchParams, authLoading, user]);
 
   const handleDocumentSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmittingDocs(true);
 
-    // Basic validation: check if files are selected
     if (!logbookFileRef.current?.files?.length || 
         !idFileRef.current?.files?.length ||
         !statementFileRef.current?.files?.length) {
@@ -83,7 +81,6 @@ export default function KycUploadPage() {
       return;
     }
 
-    // Simulate document submission
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     console.log("Simulated KYC document submission for:", mfi?.name);
