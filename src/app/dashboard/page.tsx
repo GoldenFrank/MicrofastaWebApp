@@ -16,9 +16,19 @@ const mockLoans: LoanApplication[] = [
     id: 'L001AXYZ',
     amount: 50000,
     mfi: 'Faulu Kenya',
-    status: 'Pending Review',
+    status: 'KYC Submitted', // Updated status
     appliedDate: '2024-07-01',
     lastUpdate: '2024-07-15',
+    repaymentStatus: 'N/A',
+    buyOffEligible: false,
+  },
+  {
+    id: 'L007DEFG',
+    amount: 80000,
+    mfi: 'Asa Kenya',
+    status: 'KYC Pending', // New status
+    appliedDate: '2024-07-18',
+    lastUpdate: '2024-07-19',
     repaymentStatus: 'N/A',
     buyOffEligible: false,
   },
@@ -26,7 +36,7 @@ const mockLoans: LoanApplication[] = [
     id: 'L002BCDE',
     amount: 120000,
     mfi: 'Platinum Credit',
-    status: 'Approved',
+    status: 'MFI Reviewing Docs', // Updated status
     appliedDate: '2024-06-15',
     lastUpdate: '2024-07-10',
     repaymentStatus: 'N/A',
@@ -48,6 +58,7 @@ const mockLoans: LoanApplication[] = [
     id: 'L004JKLM',
     amount: 30000,
     status: 'Rejected',
+    mfi: 'Jijenge Credit',
     appliedDate: '2024-07-05',
     lastUpdate: '2024-07-08',
     repaymentStatus: 'N/A',
@@ -72,6 +83,15 @@ const mockLoans: LoanApplication[] = [
     lastUpdate: '2024-06-20',
     repaymentStatus: 'Paid Off',
     buyOffEligible: false,
+  },
+  {
+    id: 'L008HIJK',
+    amount: 45000,
+    status: 'MFI Matched',
+    appliedDate: '2024-07-20',
+    lastUpdate: '2024-07-21',
+    repaymentStatus: 'N/A',
+    buyOffEligible: false,
   }
 ];
 
@@ -86,28 +106,33 @@ export default function DashboardPage() {
       router.push('/login?redirect=/dashboard');
     } else if (user) {
       // Simulate fetching loans
-      setTimeout(() => {
+      // In a real app, you might fetch and update this based on interactions in mfi-details page
+      const storedLoans = localStorage.getItem('mockUserLoans');
+      if (storedLoans) {
+        // This is a very basic way to persist, real app needs backend
+        // setLoans(JSON.parse(storedLoans));
+        setLoans(mockLoans); // For now, stick to updated mockLoans
+      } else {
         setLoans(mockLoans);
-        setIsLoadingLoans(false);
-      }, 1000);
+      }
+      setIsLoadingLoans(false);
     }
   }, [user, authLoading, router]);
 
   if (authLoading || isLoadingLoans) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="ml-4 text-lg font-semibold">Loading Dashboard...</p>
+        <Loader2 className="h-12 w-12 animate-spin text-accent" />
+        <p className="ml-4 text-lg font-semibold text-teal-700">Loading Dashboard...</p>
       </div>
     );
   }
 
   if (!user) {
-     // This case should ideally be handled by the redirect, but as a fallback:
     return (
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] text-center">
             <AlertTriangle className="h-16 w-16 text-destructive mb-4" />
-            <h2 className="text-2xl font-semibold mb-2">Access Denied</h2>
+            <h2 className="text-2xl font-semibold mb-2 text-teal-700">Access Denied</h2>
             <p className="text-muted-foreground mb-4">Please log in to view your dashboard.</p>
             <Button asChild>
                 <Link href="/login">Go to Login</Link>

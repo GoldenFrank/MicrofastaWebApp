@@ -1,28 +1,33 @@
 
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { ArrowLeft, Building, CheckSquare, Clock, FileText, Info, Percent, Phone, ShieldCheck, AlertTriangle, Loader2 } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft, Building, CheckSquare, Clock, FileText, Info, Percent, Phone, ShieldCheck, AlertTriangle, Loader2, UploadCloud, FileCheck } from 'lucide-react';
 import Link from 'next/link';
 import type { MfiInstitution } from '@/ai/flows/mfi-matching';
+import { useToast } from '@/hooks/use-toast';
 
 export default function MfiDetailsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { toast } = useToast();
   const [mfi, setMfi] = useState<MfiInstitution | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [documentsSubmitted, setDocumentsSubmitted] = useState(false);
+  const [isSubmittingDocs, setIsSubmittingDocs] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const mfiParam = searchParams.get('mfi');
     if (mfiParam) {
       try {
         const parsedMfi = JSON.parse(decodeURIComponent(mfiParam));
-        // Basic validation for the parsed MFI object
         if (parsedMfi && parsedMfi.name && parsedMfi.contactInformation) {
           setMfi(parsedMfi);
         } else {
@@ -36,6 +41,33 @@ export default function MfiDetailsPage() {
       setError("No MFI selected. Please go back and select an MFI.");
     }
   }, [searchParams]);
+
+  const handleDocumentSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSubmittingDocs(true);
+
+    // Simulate document submission
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    // In a real app, you would handle file uploads here.
+    // For this prototype, we just simulate success.
+    console.log("Simulated document submission for:", mfi?.name);
+    if (fileInputRef.current?.files && fileInputRef.current.files.length > 0) {
+        console.log("Files selected:", fileInputRef.current.files);
+    }
+
+
+    setDocumentsSubmitted(true);
+    setIsSubmittingDocs(false);
+    toast({
+      title: "Documents Submitted!",
+      description: `Your documents for ${mfi?.name} have been notionally submitted. You can track the status on your dashboard (simulation).`,
+      duration: 5000,
+    });
+    // Potentially update a global state or localStorage to reflect this in dashboard
+    // For now, user can navigate back or to dashboard.
+  };
+
 
   if (error) {
     return (
@@ -71,7 +103,7 @@ export default function MfiDetailsPage() {
             <Building className="w-10 h-10 text-accent" />
             <div>
               <CardTitle className="text-3xl font-headline text-teal-700">{mfi.name}</CardTitle>
-              <CardDescription>Next steps to apply with {mfi.name}.</CardDescription>
+              <CardDescription>Review details and proceed with {mfi.name}.</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -80,7 +112,7 @@ export default function MfiDetailsPage() {
             <ShieldCheck className="h-4 w-4" />
             <AlertTitle>Proceed with your Application</AlertTitle>
             <AlertDescription>
-              You have selected to proceed with <strong>{mfi.name}</strong>. Please use their contact information below to complete your loan application. Mention you found them through MicroFasta!
+              You have selected to proceed with <strong>{mfi.name}</strong>. Review their requirements below. You can use their contact information or, if available, upload your documents directly.
             </AlertDescription>
           </Alert>
 
@@ -102,10 +134,45 @@ export default function MfiDetailsPage() {
             <h3 className="font-semibold text-lg mb-2 flex items-center"><FileText className="mr-2 text-accent"/>Loan Terms & Conditions:</h3>
             <p className="text-foreground/80 whitespace-pre-line">{mfi.loanTerms}</p>
           </div>
+
+          {!documentsSubmitted ? (
+            <Card className="mt-6 bg-muted/30">
+              <CardHeader>
+                <CardTitle className="text-xl flex items-center text-teal-700"><UploadCloud className="mr-2 text-accent"/>Upload Your Documents</CardTitle>
+                <CardDescription>Submit the required documents to {mfi.name} for review.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleDocumentSubmit} className="space-y-4">
+                  <div>
+                    <Label htmlFor="documents" className="text-sm font-medium">Required Documents</Label>
+                    <p className="text-xs text-muted-foreground mb-2">Please ensure all documents listed under 'Requirements' are included. You can upload multiple files or a single ZIP file.</p>
+                    <Input id="documents" type="file" ref={fileInputRef} multiple className="border-input" />
+                  </div>
+                  <Button type="submit" className="w-full bg-yellow-300 text-teal-900 hover:bg-yellow-400 hover:text-teal-950" disabled={isSubmittingDocs}>
+                    {isSubmittingDocs ? (
+                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Submitting...</>
+                    ) : (
+                      <><UploadCloud className="mr-2 h-4 w-4" />Submit Documents to {mfi.name}</>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          ) : (
+            <Alert variant="default" className="mt-6 border-green-500 bg-green-50">
+              <FileCheck className="h-5 w-5 text-green-600" />
+              <AlertTitle className="text-green-700">Documents Submitted Successfully!</AlertTitle>
+              <AlertDescription className="text-green-600">
+                Your documents for {mfi.name} have been (notionally) submitted. The MFI will review them. You can track the status on your <Link href="/dashboard" className="underline hover:text-green-800 font-semibold">dashboard</Link>.
+                You may also contact {mfi.name} directly using their provided contact information for follow-ups.
+              </AlertDescription>
+            </Alert>
+          )}
+
         </CardContent>
         <CardFooter className="flex-col items-start space-y-2">
             <p className="text-xs text-muted-foreground">
-                MicroFasta helps you find MFIs. The actual loan agreement will be between you and {mfi.name}. Ensure you understand all terms before committing.
+                MicroFasta helps you find and connect with MFIs. The actual loan agreement and document verification will be between you and {mfi.name}. Ensure you understand all terms before committing.
             </p>
         </CardFooter>
       </Card>
@@ -132,3 +199,4 @@ const InfoItem = ({ icon, label, value, isContact = false }: InfoItemProps) => (
     </div>
   </div>
 );
+

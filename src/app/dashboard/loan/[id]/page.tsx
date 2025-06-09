@@ -1,6 +1,4 @@
 
-// This is a placeholder for a detailed loan view page.
-// In a real application, you would fetch loan details based on the ID.
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -9,8 +7,8 @@ import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Loader2, AlertTriangle, DollarSign, Landmark, CalendarDays, Info, FileText, UserCheck, ListChecks, Shuffle, HelpCircle } from 'lucide-react';
-import type { LoanApplication } from '@/components/loan/DashboardLoanCard'; // Re-use type
+import { ArrowLeft, Loader2, AlertTriangle, DollarSign, Landmark, CalendarDays, Info, FileText, UserCheck, ListChecks, Shuffle, HelpCircle, FileUp, UserCog, FileSearch, Banknote, CheckCircle, XCircle, Hourglass } from 'lucide-react';
+import type { LoanApplication } from '@/components/loan/DashboardLoanCard'; 
 import { Badge } from '@/components/ui/badge';
 
 // Extended type for detailed view, merging with base LoanApplication
@@ -23,15 +21,22 @@ type LoanDetail = LoanApplication & {
 // Mock data - in a real app, fetch this based on params.id
 const mockLoanDetails: { [key: string]: LoanDetail } = {
   'L001AXYZ': {
-    id: 'L001AXYZ', amount: 50000, mfi: 'Faulu Kenya', status: 'Pending Review', appliedDate: '2024-07-01', lastUpdate: '2024-07-15',
-    detailedNotes: "Initial review in progress. Logbook verification scheduled for next week. Ensure all documents are up to date.",
+    id: 'L001AXYZ', amount: 50000, mfi: 'Faulu Kenya', status: 'KYC Submitted', appliedDate: '2024-07-01', lastUpdate: '2024-07-15',
+    detailedNotes: "Documents submitted via MicroFasta portal. Awaiting review by Faulu Kenya.",
     mfiContact: "Faulu Kenya - 0711074074",
     repaymentStatus: 'N/A',
     buyOffEligible: false,
   },
+  'L007DEFG': {
+    id: 'L007DEFG', amount: 80000, mfi: 'Asa Kenya', status: 'KYC Pending', appliedDate: '2024-07-18', lastUpdate: '2024-07-19',
+    detailedNotes: "Please upload your KYC documents for Asa Kenya to proceed with the application.",
+    mfiContact: "Asa Kenya - contact@asakenya.com",
+    repaymentStatus: 'N/A',
+    buyOffEligible: false,
+  },
   'L002BCDE': {
-    id: 'L002BCDE', amount: 120000, mfi: 'Platinum Credit', status: 'Approved', appliedDate: '2024-06-15', lastUpdate: '2024-07-10',
-    detailedNotes: "Loan approved. Awaiting your final confirmation to proceed with disbursement.",
+    id: 'L002BCDE', amount: 120000, mfi: 'Platinum Credit', status: 'MFI Reviewing Docs', appliedDate: '2024-06-15', lastUpdate: '2024-07-10',
+    detailedNotes: "Platinum Credit is currently reviewing your submitted documents. You will be updated soon.",
     mfiContact: "Platinum Credit - 0709777000",
     repaymentStatus: 'N/A',
     buyOffEligible: true,
@@ -46,9 +51,9 @@ const mockLoanDetails: { [key: string]: LoanDetail } = {
     buyOffDetails: 'Competitive buy-off offers available through MicroFasta network. Check back after 3 successful repayments.'
   },
    'L004JKLM': {
-    id: 'L004JKLM', amount: 30000, status: 'Rejected', appliedDate: '2024-07-05', lastUpdate: '2024-07-08',
-    detailedNotes: "Application rejected due to insufficient income proof and logbook valuation discrepancies. Please contact us if you have updated documents.",
-    mfiContact: "N/A",
+    id: 'L004JKLM', amount: 30000, status: 'Rejected', mfi: 'Jijenge Credit', appliedDate: '2024-07-05', lastUpdate: '2024-07-08',
+    detailedNotes: "Application rejected by Jijenge Credit due to income proof issues. Please contact them for clarification or apply with updated documents.",
+    mfiContact: "Jijenge Credit - 0701122333",
     repaymentStatus: 'N/A',
     buyOffEligible: false,
   },
@@ -64,8 +69,15 @@ const mockLoanDetails: { [key: string]: LoanDetail } = {
     detailedNotes: "This loan has been fully paid off. Congratulations!",
     mfiContact: "Premier Credit - 0701987654",
     repaymentStatus: 'Paid Off',
-    buyOffEligible: false, // Or potentially true if a new loan can be taken
+    buyOffEligible: false,
   },
+  'L008HIJK': {
+    id: 'L008HIJK', amount: 45000, status: 'MFI Matched', appliedDate: '2024-07-20', lastUpdate: '2024-07-21',
+    detailedNotes: "You have been matched with MFIs. Please proceed to the /apply page, re-enter your details to see matches, and select an MFI to submit documents.",
+    mfiContact: "N/A", // No specific MFI selected yet by user for KYC
+    repaymentStatus: 'N/A',
+    buyOffEligible: false,
+  }
 };
 
 
@@ -81,7 +93,6 @@ export default function LoanDetailPage() {
     if (!authLoading && !user) {
       router.push(`/login?redirect=/dashboard/loan/${loanId}`);
     } else if (user && loanId) {
-      // Simulate fetching loan details
       setTimeout(() => {
         const foundLoan = mockLoanDetails[loanId];
         setLoan(foundLoan || null);
@@ -94,7 +105,7 @@ export default function LoanDetailPage() {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
         <Loader2 className="h-12 w-12 animate-spin text-accent" />
-        <p className="ml-4 text-lg">Loading loan details...</p>
+        <p className="ml-4 text-lg text-teal-700">Loading loan details...</p>
       </div>
     );
   }
@@ -112,21 +123,26 @@ export default function LoanDetailPage() {
     );
   }
 
-  const statusInfo = {
-    'Pending Review': { icon: <Loader2 className="h-5 w-5 text-yellow-500 mr-2 animate-spin" />, color: "text-yellow-500" },
-    'MFI Matched': { icon: <UserCheck className="h-5 w-5 text-blue-500 mr-2" />, color: "text-blue-500" },
-    'Approved': { icon: <FileText className="h-5 w-5 text-green-500 mr-2" />, color: "text-green-500" },
-    'Awaiting Disbursement': { icon: <Landmark className="h-5 w-5 text-teal-500 mr-2" />, color: "text-teal-500" },
-    'Funds Disbursed': { icon: <DollarSign className="h-5 w-5 text-purple-500 mr-2" />, color: "text-purple-500" },
-    'Rejected': { icon: <AlertTriangle className="h-5 w-5 text-red-500 mr-2" />, color: "text-red-500" },
-  }[loan.status] || { icon: <Info className="h-5 w-5 text-gray-500 mr-2" />, color: "text-gray-500" };
+  const statusInfoMap: Record<LoanApplication['status'], { icon: React.ReactNode; color: string; cardMessage?: string }> = {
+    'Pending Review': { icon: <Hourglass className="h-5 w-5 text-yellow-500 mr-2 animate-spin" />, color: "text-yellow-500 border-yellow-500/50", cardMessage: "Your initial application is under review by MicroFasta." },
+    'MFI Matched': { icon: <UserCog className="h-5 w-5 text-sky-500 mr-2" />, color: "text-sky-500 border-sky-500/50", cardMessage: "We've matched you with potential MFIs. Please proceed from the Apply page to select one and submit documents." },
+    'KYC Pending': { icon: <FileUp className="h-5 w-5 text-orange-500 mr-2" />, color: "text-orange-500 border-orange-500/50", cardMessage: `Awaiting your document submission for ${loan.mfi}. You can do this from the MFI details page after selecting them on 'Apply'.` },
+    'KYC Submitted': { icon: <FileSearch className="h-5 w-5 text-blue-500 mr-2" />, color: "text-blue-500 border-blue-500/50", cardMessage: `Your documents for ${loan.mfi} have been submitted and are pending MFI review.` },
+    'MFI Reviewing Docs': { icon: <UserCog className="h-5 w-5 text-indigo-500 mr-2" />, color: "text-indigo-500 border-indigo-500/50", cardMessage: `${loan.mfi} is currently reviewing your submitted documents.` },
+    'Approved': { icon: <CheckCircle className="h-5 w-5 text-green-500 mr-2" />, color: "text-green-500 border-green-500/50", cardMessage: `Congratulations! ${loan.mfi} has approved your loan. Contact them to finalize.` },
+    'Awaiting Disbursement': { icon: <Banknote className="h-5 w-5 text-teal-500 mr-2" />, color: "text-teal-500 border-teal-500/50", cardMessage: `Funds from ${loan.mfi} are being prepared for disbursement.` },
+    'Funds Disbursed': { icon: <DollarSign className="h-5 w-5 text-purple-500 mr-2" />, color: "text-purple-500 border-purple-500/50", cardMessage: `Funds from ${loan.mfi} have been disbursed. Check your account.` },
+    'Rejected': { icon: <XCircle className="h-5 w-5 text-red-500 mr-2" />, color: "text-red-500 border-red-500/50", cardMessage: `Unfortunately, your application with ${loan.mfi || 'the MFI'} was not approved at this stage.` },
+  };
+  const currentStatusInfo = statusInfoMap[loan.status] || { icon: <Info className="h-5 w-5 text-gray-500 mr-2" />, color: "text-gray-500 border-gray-500/50", cardMessage: "The current status of your loan is being updated." };
 
-  const repaymentStatusColors = {
-    'On Track': 'text-green-600 bg-green-100',
-    'Overdue': 'text-red-600 bg-red-100',
-    'Paid Off': 'text-blue-600 bg-blue-100',
-    'Defaulted': 'text-destructive bg-destructive/10',
-    'N/A': 'text-muted-foreground bg-muted/30'
+
+  const repaymentStatusColors: Record<Required<LoanApplication>['repaymentStatus'], string> = {
+    'On Track': 'text-green-600 bg-green-100 border-green-200',
+    'Overdue': 'text-red-600 bg-red-100 border-red-200',
+    'Paid Off': 'text-blue-600 bg-blue-100 border-blue-200',
+    'Defaulted': 'text-destructive bg-destructive/10 border-destructive/20',
+    'N/A': 'text-muted-foreground bg-muted/30 border-muted/50'
   };
   const repaymentBadgeClasses = repaymentStatusColors[loan.repaymentStatus || 'N/A'] || repaymentStatusColors['N/A'];
 
@@ -140,8 +156,8 @@ export default function LoanDetailPage() {
         <CardHeader>
           <div className="flex justify-between items-start">
             <CardTitle className="text-3xl font-headline text-teal-700">Loan Details: {loan.id}</CardTitle>
-            <Badge variant="outline" className={`flex items-center font-semibold px-3 py-1 ${statusInfo.color} border-transparent`}>
-              {statusInfo.icon}
+            <Badge variant="outline" className={`flex items-center font-semibold px-3 py-1 ${currentStatusInfo.color} bg-transparent`}>
+              {currentStatusInfo.icon}
               {loan.status}
             </Badge>
           </div>
@@ -150,7 +166,7 @@ export default function LoanDetailPage() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <InfoItem icon={<DollarSign />} label="Loan Amount" value={`KSH ${loan.amount.toLocaleString()}`} />
-            <InfoItem icon={<Landmark />} label="MFI" value={loan.mfi || 'Pending Match'} />
+            <InfoItem icon={<Landmark />} label="MFI" value={loan.mfi || 'Pending Selection'} />
             <InfoItem icon={<CalendarDays />} label="Applied Date" value={new Date(loan.appliedDate).toLocaleDateString()} />
             <InfoItem icon={<CalendarDays />} label="Last Updated" value={new Date(loan.lastUpdate).toLocaleDateString()} />
             {loan.repaymentStatus && (
@@ -169,7 +185,7 @@ export default function LoanDetailPage() {
                 value={loan.buyOffEligible ? 'Eligible' : 'Not Eligible'}
               />
             )}
-            {loan.mfiContact && loan.mfiContact !== "N/A" && <InfoItem icon={<Info />} label="MFI Contact" value={loan.mfiContact} />}
+            {loan.mfiContact && loan.mfiContact !== "N/A" && <InfoItem icon={<Phone />} label="MFI Contact" value={loan.mfiContact} />}
           </div>
 
           {loan.buyOffEligible && loan.buyOffDetails && (
@@ -197,16 +213,17 @@ export default function LoanDetailPage() {
         </CardFooter>
       </Card>
 
-      {loan.status === 'Pending Review' && (
-         <Card className="mt-6 bg-secondary/30">
+      {currentStatusInfo.cardMessage && (
+         <Card className="mt-6 bg-secondary/30 border-l-4 border-accent">
             <CardHeader>
-                <CardTitle className="text-xl flex items-center text-teal-700"><Info className="mr-2 text-accent"/>Next Steps</CardTitle>
+                <CardTitle className="text-xl flex items-center text-teal-700"><Info className="mr-2 text-accent"/>Status Update & Next Steps</CardTitle>
             </CardHeader>
             <CardContent>
-                <p className="text-secondary-foreground">Your application is under review. We will notify you of any updates. You may be contacted by MicroFasta or the MFI if additional information is required.</p>
+                <p className="text-secondary-foreground">{currentStatusInfo.cardMessage}</p>
             </CardContent>
          </Card>
       )}
+
       {loan.repaymentStatus === 'Overdue' && (
          <Card className="mt-6 border-destructive bg-destructive/10">
             <CardHeader>
