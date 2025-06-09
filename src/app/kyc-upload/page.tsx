@@ -13,6 +13,7 @@ import Link from 'next/link';
 import type { MfiInstitution } from '@/ai/flows/mfi-matching';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
+import { cn } from '@/lib/utils'; // Added missing import
 
 export default function KycUploadPage() {
   const router = useRouter();
@@ -286,5 +287,7 @@ const InfoItem = ({ icon, label, value, isContact = false, isLink = false }: Inf
   </div>
 );
 
+
+    
 
     
