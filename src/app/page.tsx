@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CheckCircle, TrendingUp, ShieldCheck } from "lucide-react";
+import { CheckCircle, TrendingUp, ShieldCheck, Clock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -9,10 +9,10 @@ export default function HomePage() {
     <div className="flex flex-col items-center space-y-12">
       <section className="text-center py-12 md:py-20">
         <h1 className="text-4xl md:text-6xl font-bold mb-6 text-primary">
-          Logbook Loan Compass
+          Get Your Logbook Loan in 3 Hours
         </h1>
         <p className="text-lg md:text-xl text-foreground/80 mb-8 max-w-2xl mx-auto">
-          Navigate your financial journey with ease. Get matched with the best logbook loan providers in minutes. Fast, secure, and transparent.
+          Compare offers from top MFIs in Kenya. Fast approval, competitive rates, and transparent terms.
         </p>
         <div className="space-x-4">
           <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
@@ -26,13 +26,13 @@ export default function HomePage() {
 
       <section className="w-full max-w-5xl grid md:grid-cols-3 gap-8" id="learn-more">
         <FeatureCard
-          icon={<CheckCircle className="w-10 h-10 text-accent" />}
-          title="Quick Approval"
+          icon={<Clock className="w-10 h-10 text-accent" />}
+          title="Fast Approval"
           description="Loan applications processed swiftly, aiming for approval within 3 hours."
         />
         <FeatureCard
           icon={<TrendingUp className="w-10 h-10 text-accent" />}
-          title="MFI Matching"
+          title="Top MFI Comparison"
           description="Our AI connects you with suitable Microfinance Institutions based on your profile."
         />
         <FeatureCard

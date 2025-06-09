@@ -6,8 +6,8 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
 export const metadata: Metadata = {
-  title: 'Logbook Loan Compass',
-  description: 'Simplified logbook loan applications and MFI matching.',
+  title: 'MicroFasta - Get Your Logbook Loan in 3 Hours',
+  description: 'Compare offers from top MFIs in Kenya. Fast approval, competitive rates, and transparent terms.',
 };
 
 export default function RootLayout({
