@@ -34,7 +34,9 @@ const MfiInstitutionSchema = z.object({
   requirements: z.array(z.string()).describe('List of requirements for loan application.'),
   contactInformation: z.string().describe('Contact details for the MFI institution (phone or general inquiry).'),
   approvalRate: z.number().describe('Historical loan approval rate as a decimal (e.g., 0.85 for 85%).'),
-  loanTerms: z.string().describe('Summary of key loan terms and conditions (e.g., "Max loan tenure 24 months", "Logbook must be for vehicle not older than 10 years").')
+  loanTerms: z.string().describe('Summary of key loan terms and conditions (e.g., "Max loan tenure 24 months", "Logbook must be for vehicle not older than 10 years").'),
+  websiteUrl: z.string().url().optional().describe('Official website URL of the MFI.'),
+  applicationUrl: z.string().url().optional().describe('Direct URL to the MFI loan application page, if available.'),
 });
 export type MfiInstitution = z.infer<typeof MfiInstitutionSchema>;
 
@@ -53,9 +55,9 @@ const prompt = ai.definePrompt({
   output: {
     schema: MfiMatchingOutputSchema,
   },
-  prompt: `You are an expert financial advisor specializing in logbook loans in Kenya. Based on the loan application details, identify the 3 most suitable Kenyan MFI institutions.
+  prompt: `You are an expert financial advisor specializing in logbook loans in Kenya. Based on the loan application details, identify the 5 most suitable Kenyan MFI institutions.
 
-Consider factors such as loan amount, applicant's logbook details, credit score, employment status, and location, as well as the MFI's interest rates, processing times, and requirements. Use the example MFIs below as a guide for the kind of information and format to return. Do NOT limit your suggestions to only these examples; find real and applicable MFIs based on the applicant's profile.
+Consider factors such as loan amount, applicant's logbook details, credit score, employment status, and location, as well as the MFI's interest rates, processing times, requirements, website URLs, and application URLs. Use the example MFIs below as a guide for the kind of information and format to return. Do NOT limit your suggestions to only these examples; find real and applicable MFIs based on the applicant's profile.
 
 Example Kenyan MFIs:
 \`\`\`
@@ -67,7 +69,9 @@ Example Kenyan MFIs:
     "requirements": ["Original Logbook", "National ID", "KRA PIN", "6 months M-Pesa/Bank Statement", "Comprehensive Insurance"],
     "contactInformation": "0711074000 / 0709700000",
     "approvalRate": 0.80,
-    "loanTerms": "Loan amounts up to 70% of vehicle value. Vehicle must be less than 15 years old."
+    "loanTerms": "Loan amounts up to 70% of vehicle value. Vehicle must be less than 15 years old.",
+    "websiteUrl": "https://www.faulukenya.com",
+    "applicationUrl": "https://www.faulukenya.com/logbook-loans"
   },
   {
     "name": "Platinum Credit Kenya",
@@ -76,7 +80,9 @@ Example Kenyan MFIs:
     "requirements": ["Original Logbook", "National ID", "KRA PIN", "Utility Bill", "Bank Statements"],
     "contactInformation": "0709900000",
     "approvalRate": 0.85,
-    "loanTerms": "Flexible repayment periods up to 36 months. No CRB check for some products."
+    "loanTerms": "Flexible repayment periods up to 36 months. No CRB check for some products.",
+    "websiteUrl": "https://platinumcredit.co.ke",
+    "applicationUrl": "https://platinumcredit.co.ke/apply-now"
   },
   {
     "name": "Momentum Credit",
@@ -85,7 +91,9 @@ Example Kenyan MFIs:
     "requirements": ["Original Logbook", "National ID", "KRA PIN", "Proof of Income"],
     "contactInformation": "0709434000",
     "approvalRate": 0.78,
-    "loanTerms": "Financing up to KES 3 million. Insurance financing available."
+    "loanTerms": "Financing up to KES 3 million. Insurance financing available.",
+    "websiteUrl": "https://momentumcredit.co.ke",
+    "applicationUrl": "https://momentumcredit.co.ke/logbook-loans-application"
   },
   {
     "name": "Jijenge Credit",
@@ -94,7 +102,20 @@ Example Kenyan MFIs:
     "requirements": ["Original Logbook", "National ID", "KRA PIN", "Two passport photos"],
     "contactInformation": "0711280000",
     "approvalRate": 0.75,
-    "loanTerms": "Loans from KES 50,000. Repayment period up to 12 months."
+    "loanTerms": "Loans from KES 50,000. Repayment period up to 12 months.",
+    "websiteUrl": "https://jijengecredit.com",
+    "applicationUrl": "https://jijengecredit.com/application"
+  },
+  {
+    "name": "Izwe Kenya",
+    "interestRate": 14.5,
+    "processingTime": "24-72 hours",
+    "requirements": ["Original Logbook", "National ID", "KRA PIN", "Bank Statements", "Proof of Residence"],
+    "contactInformation": "0207602000",
+    "approvalRate": 0.79,
+    "loanTerms": "Loans up to KES 2.5 million. Repayment up to 24 months.",
+    "websiteUrl": "https://www.izwekenya.com",
+    "applicationUrl": "https://www.izwekenya.com/apply"
   }
 ]
 \`\`\`
@@ -107,7 +128,7 @@ Applicant Details:
 - Employment Status: {{{employmentStatus}}}
 - Location: {{{location}}}
 
-Return a JSON array of 3 suitable Kenyan MFI institutions, formatted as in the examples above. Ensure all fields are populated.
+Return a JSON array of 5 suitable Kenyan MFI institutions, formatted as in the examples above. Ensure all fields, including websiteUrl and applicationUrl (if available, otherwise omit them or provide a general link), are populated.
 `,
 });
 

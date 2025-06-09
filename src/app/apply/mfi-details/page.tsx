@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Building, CheckSquare, Clock, FileText, Info, Percent, Phone, ShieldCheck, AlertTriangle, Loader2, UploadCloud, FileCheck, BookCopy, FileBadge, UserSquare } from 'lucide-react';
+import { ArrowLeft, Building, CheckSquare, Clock, FileText, Info, Percent, Phone, ShieldCheck, AlertTriangle, Loader2, UploadCloud, FileCheck, BookCopy, FileBadge, UserSquare, Globe, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import type { MfiInstitution } from '@/ai/flows/mfi-matching';
 import { useToast } from '@/hooks/use-toast';
@@ -157,6 +157,8 @@ export default function MfiDetailsPage() {
             <InfoItem icon={<Clock className="text-accent"/>} label="Processing Time" value={mfi.processingTime} />
             <InfoItem icon={<Phone className="text-accent"/>} label="Contact Information" value={mfi.contactInformation} isContact />
             <InfoItem icon={<Info className="text-accent"/>} label="Approval Rate" value={`${(mfi.approvalRate * 100).toFixed(0)}%`} />
+            {mfi.websiteUrl && <InfoItem icon={<Globe className="text-accent"/>} label="Website" value={mfi.websiteUrl} isLink />}
+            {mfi.applicationUrl && <InfoItem icon={<ExternalLink className="text-accent"/>} label="Apply Online" value={mfi.applicationUrl} isLink />}
           </div>
 
           <div>
@@ -231,17 +233,21 @@ interface InfoItemProps {
   label: string;
   value: string | number;
   isContact?: boolean;
+  isLink?: boolean;
 }
-const InfoItem = ({ icon, label, value, isContact = false }: InfoItemProps) => (
+const InfoItem = ({ icon, label, value, isContact = false, isLink = false }: InfoItemProps) => (
   <div className="flex items-start p-3 bg-muted/30 rounded-md">
-    <span className="mr-3 pt-1">{React.cloneElement(icon as React.ReactElement, { className: "w-5 h-5" })}</span>
+    <span className="mr-3 pt-1">{React.cloneElement(icon as React.ReactElement, { className: "w-5 h-5 text-accent" })}</span>
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
-      {isContact && (typeof value === 'string' && (value.startsWith('http') || value.startsWith('mailto:') || value.startsWith('tel:'))) ? (
-        <a href={value} target="_blank" rel="noopener noreferrer" className="font-semibold text-foreground hover:underline">{value.replace(/^(mailto:|tel:)/, '')}</a>
+      {(isContact || isLink) && (typeof value === 'string' && (value.startsWith('http') || value.startsWith('mailto:') || value.startsWith('tel:'))) ? (
+        <a href={value} target="_blank" rel="noopener noreferrer" className="font-semibold text-foreground hover:underline break-all">
+          {isLink ? value : value.replace(/^(mailto:|tel:)/, '')}
+        </a>
       ) : (
         <p className="font-semibold text-foreground">{value}</p>
       )}
     </div>
   </div>
 );
+
