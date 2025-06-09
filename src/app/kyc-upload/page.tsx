@@ -33,7 +33,7 @@ export default function KycUploadPage() {
     if (!authLoading && !user) {
       // Preserve the MFI parameter if redirecting to login
       const mfiParam = searchParams.get('mfi');
-      const redirectPath = mfiParam ? `/kyc-upload?mfi=${mfiParam}` : '/kyc-upload';
+      const redirectPath = mfiParam ? `/kyc-upload?mfi=${encodeURIComponent(mfiParam)}` : '/kyc-upload'; // Re-encode if passing along
       router.push(`/login?redirect=${encodeURIComponent(redirectPath)}`);
     }
   }, [user, authLoading, router, searchParams]);
@@ -64,7 +64,7 @@ export default function KycUploadPage() {
     } else if (!authLoading && user) { // Only set error if not loading and user is present (i.e., not about to be redirected)
       setError("No MFI selected. Please go back and select an MFI from the application page.");
     }
-  }, [searchParams, authLoading, user]);
+  }, [searchParams, authLoading, user]); // Removed mfi from dependencies as it's being set here
 
   const handleDocumentSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -87,9 +87,9 @@ export default function KycUploadPage() {
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     console.log("Simulated KYC document submission for:", mfi?.name);
-    console.log("Logbook files:", logbookFileRef.current.files);
-    console.log("ID files:", idFileRef.current.files);
-    console.log("Statement files:", statementFileRef.current.files);
+    if (logbookFileRef.current.files) console.log("Logbook files:", logbookFileRef.current.files);
+    if (idFileRef.current.files) console.log("ID files:", idFileRef.current.files);
+    if (statementFileRef.current.files) console.log("Statement files:", statementFileRef.current.files);
     
     setDocumentsSubmitted(true);
     setIsSubmittingDocs(false);
@@ -98,9 +98,6 @@ export default function KycUploadPage() {
       description: `Your KYC documents for ${mfi?.name} have been notionally submitted. You can track the status on your main dashboard (simulation).`,
       duration: 5000,
     });
-    // TODO: In a real app, you would store this submission status and link it to the loan application.
-    // For example, update a loan application status in a database.
-    // This could trigger a new 'KYC Submitted' status on the main dashboard.
   };
 
   if (authLoading) {
@@ -126,7 +123,6 @@ export default function KycUploadPage() {
   }
 
   if (!mfi) {
-    // This state could be hit if user is authenticated but mfi param is missing or invalid, and not caught by error state yet
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
         <Loader2 className="h-12 w-12 animate-spin text-accent" />
@@ -161,12 +157,12 @@ export default function KycUploadPage() {
           </Alert>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm pt-4">
-            <InfoItem icon={<Percent className="text-accent" />} label="Interest Rate" value={`${mfi.interestRate}%`} />
-            <InfoItem icon={<Clock className="text-accent" />} label="Processing Time" value={mfi.processingTime} />
-            <InfoItem icon={<Phone className="text-accent" />} label="Contact Information" value={mfi.contactInformation} isContact />
-            <InfoItem icon={<Info className="text-accent" />} label="Approval Rate" value={`${(mfi.approvalRate * 100).toFixed(0)}%`} />
-            {mfi.websiteUrl && <InfoItem icon={<Globe className="text-accent" />} label="Website" value={mfi.websiteUrl} isLink />}
-            {mfi.applicationUrl && <InfoItem icon={<ExternalLink className="text-accent" />} label="Apply Online" value={mfi.applicationUrl} isLink />}
+            <InfoItem icon={<Percent />} label="Interest Rate" value={`${mfi.interestRate}%`} />
+            <InfoItem icon={<Clock />} label="Processing Time" value={mfi.processingTime} />
+            <InfoItem icon={<Phone />} label="Contact Information" value={mfi.contactInformation} isContact />
+            <InfoItem icon={<Info />} label="Approval Rate" value={`${(mfi.approvalRate * 100).toFixed(0)}%`} />
+            {mfi.websiteUrl && <InfoItem icon={<Globe />} label="Website" value={mfi.websiteUrl} isLink />}
+            {mfi.applicationUrl && <InfoItem icon={<ExternalLink />} label="Apply Online" value={mfi.applicationUrl} isLink />}
           </div>
           
           <div>
@@ -258,3 +254,4 @@ const InfoItem = ({ icon, label, value, isContact = false, isLink = false }: Inf
     </div>
   </div>
 );
+
