@@ -7,8 +7,8 @@ import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Loader2, AlertTriangle, DollarSign, Landmark, CalendarDays, Info, FileText, UserCheck, ListChecks, Shuffle, HelpCircle, FileUp, UserCog, FileSearch, Banknote, CheckCircle, XCircle, Hourglass } from 'lucide-react';
-import type { LoanApplication } from '@/components/loan/DashboardLoanCard'; 
+import { ArrowLeft, Loader2, AlertTriangle, DollarSign, Landmark, CalendarDays, Info, FileText, UserCheck, ListChecks, Shuffle, HelpCircle, FileUp, UserCog, FileSearch, Banknote, CheckCircle, XCircle, Hourglass, Phone } from 'lucide-react';
+import type { LoanApplication } from '@/components/loan/DashboardLoanCard';
 import { Badge } from '@/components/ui/badge';
 
 // Extended type for detailed view, merging with base LoanApplication
@@ -252,3 +252,4 @@ const InfoItem = ({ icon, label, value }: InfoItemProps) => (
     </div>
   </div>
 );
+
