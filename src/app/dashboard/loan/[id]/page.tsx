@@ -165,10 +165,10 @@ export default function LoanDetailPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <InfoItem icon={<DollarSign />} label="Loan Amount" value={`KSH ${loan.amount.toLocaleString()}`} />
-            <InfoItem icon={<Landmark />} label="MFI" value={loan.mfi || 'Pending Selection'} />
-            <InfoItem icon={<CalendarDays />} label="Applied Date" value={new Date(loan.appliedDate).toLocaleDateString()} />
-            <InfoItem icon={<CalendarDays />} label="Last Updated" value={new Date(loan.lastUpdate).toLocaleDateString()} />
+            <InfoItem icon={<DollarSign className="text-accent" />} label="Loan Amount" value={`KSH ${loan.amount.toLocaleString()}`} />
+            <InfoItem icon={<Landmark className="text-accent" />} label="MFI" value={loan.mfi || 'Pending Selection'} />
+            <InfoItem icon={<CalendarDays className="text-accent" />} label="Applied Date" value={new Date(loan.appliedDate).toLocaleDateString()} />
+            <InfoItem icon={<CalendarDays className="text-accent" />} label="Last Updated" value={new Date(loan.lastUpdate).toLocaleDateString()} />
             {loan.repaymentStatus && (
               <div className="flex items-center p-3 bg-muted/30 rounded-md md:col-span-1">
                  <ListChecks className="w-5 h-5 mr-3 text-accent" />
@@ -180,12 +180,12 @@ export default function LoanDetailPage() {
             )}
              {loan.buyOffEligible !== undefined && (
               <InfoItem
-                icon={<Shuffle />}
+                icon={<Shuffle className="text-accent"/>}
                 label="Buy-off Option"
                 value={loan.buyOffEligible ? 'Eligible' : 'Not Eligible'}
               />
             )}
-            {loan.mfiContact && loan.mfiContact !== "N/A" && <InfoItem icon={<Phone />} label="MFI Contact" value={loan.mfiContact} />}
+            {loan.mfiContact && loan.mfiContact !== "N/A" && <InfoItem icon={<Phone className="text-accent" />} label="MFI Contact" value={loan.mfiContact} />}
           </div>
 
           {loan.buyOffEligible && loan.buyOffDetails && (
@@ -245,7 +245,7 @@ interface InfoItemProps {
 }
 const InfoItem = ({ icon, label, value }: InfoItemProps) => (
   <div className="flex items-center p-3 bg-muted/30 rounded-md">
-    <span className="text-accent mr-3">{React.cloneElement(icon as React.ReactElement, { className: "w-5 h-5" })}</span>
+    <span className="mr-3">{React.cloneElement(icon as React.ReactElement, { className: "w-5 h-5" })}</span>
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="font-semibold text-foreground">{value}</p>

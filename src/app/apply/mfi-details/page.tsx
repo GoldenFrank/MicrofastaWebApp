@@ -29,16 +29,27 @@ export default function MfiDetailsPage() {
   useEffect(() => {
     const mfiParam = searchParams.get('mfi');
     if (mfiParam) {
+      let decodedMfiParam: string;
       try {
-        const parsedMfi = JSON.parse(decodeURIComponent(mfiParam));
+        // First, try to decode the URI component
+        decodedMfiParam = decodeURIComponent(mfiParam);
+      } catch (uriError) {
+        console.error("Failed to decode MFI parameter:", uriError);
+        setError("Invalid MFI data in URL. It might be corrupted or improperly encoded. Please go back and try again.");
+        return; // Exit early if decoding fails
+      }
+
+      try {
+        // Then, try to parse the JSON
+        const parsedMfi = JSON.parse(decodedMfiParam);
         if (parsedMfi && parsedMfi.name && parsedMfi.contactInformation) {
           setMfi(parsedMfi);
         } else {
-          setError("Invalid MFI data received. Please try selecting an MFI again.");
+          setError("Invalid MFI data structure received. Please ensure all required fields are present and try selecting an MFI again.");
         }
-      } catch (e) {
-        console.error("Failed to parse MFI data:", e);
-        setError("Could not load MFI details. Please go back and try again.");
+      } catch (jsonError) {
+        console.error("Failed to parse MFI JSON data:", jsonError);
+        setError("Could not load MFI details due to a parsing error. Please go back and try again.");
       }
     } else {
       setError("No MFI selected. Please go back and select an MFI.");
@@ -117,7 +128,7 @@ export default function MfiDetailsPage() {
         </CardHeader>
         <CardContent className="space-y-4">
           <Alert>
-            <ShieldCheck className="h-4 w-4" />
+            <ShieldCheck className="h-4 w-4 text-accent" />
             <AlertTitle>Proceed with your Application</AlertTitle>
             <AlertDescription>
               You have selected to proceed with <strong>{mfi.name}</strong>. Review their requirements below. You can use their contact information or, if available, upload your documents directly.
@@ -125,10 +136,10 @@ export default function MfiDetailsPage() {
           </Alert>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm pt-4">
-            <InfoItem icon={<Percent />} label="Interest Rate" value={`${mfi.interestRate}%`} />
-            <InfoItem icon={<Clock />} label="Processing Time" value={mfi.processingTime} />
-            <InfoItem icon={<Phone />} label="Contact Information" value={mfi.contactInformation} isContact />
-            <InfoItem icon={<Info />} label="Approval Rate" value={`${(mfi.approvalRate * 100).toFixed(0)}%`} />
+            <InfoItem icon={<Percent className="text-accent"/>} label="Interest Rate" value={`${mfi.interestRate}%`} />
+            <InfoItem icon={<Clock className="text-accent"/>} label="Processing Time" value={mfi.processingTime} />
+            <InfoItem icon={<Phone className="text-accent"/>} label="Contact Information" value={mfi.contactInformation} isContact />
+            <InfoItem icon={<Info className="text-accent"/>} label="Approval Rate" value={`${(mfi.approvalRate * 100).toFixed(0)}%`} />
           </div>
 
           <div>
@@ -206,7 +217,7 @@ interface InfoItemProps {
 }
 const InfoItem = ({ icon, label, value, isContact = false }: InfoItemProps) => (
   <div className="flex items-start p-3 bg-muted/30 rounded-md">
-    <span className="text-accent mr-3 pt-1">{React.cloneElement(icon as React.ReactElement, { className: "w-5 h-5" })}</span>
+    <span className="mr-3 pt-1">{React.cloneElement(icon as React.ReactElement, { className: "w-5 h-5" })}</span>
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
       {isContact && (typeof value === 'string' && (value.startsWith('http') || value.startsWith('mailto:') || value.startsWith('tel:'))) ? (
