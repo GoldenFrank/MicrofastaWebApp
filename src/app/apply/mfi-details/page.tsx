@@ -1,6 +1,7 @@
 
 'use client';
 
+import React from 'react'; // Added React import
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
