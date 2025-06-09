@@ -6,7 +6,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 
 export const metadata: Metadata = {
-  title: 'MicroFasta - Get Your Logbook Loan in 3 Hours',
+  title: 'MicroFasta - Get your Logbook loan approved in 3 hours',
   description: 'Compare offers from top MFIs in Kenya. Fast approval, competitive rates, and transparent terms.',
 };
 

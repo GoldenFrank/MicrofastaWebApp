@@ -18,7 +18,7 @@ export default function HomePage() {
           data-ai-hint="mobile finance"
         />
         <h1 className="text-4xl md:text-6xl font-bold mb-6">
-          Get Your Logbook Loan in <span className="text-warning">3 Hours</span>
+          Get your Logbook loan approved in <span className="text-warning">3 Hours</span>
         </h1>
         <p className="text-lg md:text-xl text-foreground/80 mb-8 max-w-2xl mx-auto">
           Compare offers from top MFIs in Kenya. Fast approval, competitive rates, and transparent terms.
