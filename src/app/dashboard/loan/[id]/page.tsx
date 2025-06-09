@@ -3,7 +3,7 @@
 // In a real application, you would fetch loan details based on the ID.
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'; // Added React import
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -14,9 +14,9 @@ import type { LoanApplication } from '@/components/loan/DashboardLoanCard'; // R
 import { Badge } from '@/components/ui/badge';
 
 // Extended type for detailed view, merging with base LoanApplication
-type LoanDetail = LoanApplication & { 
-  detailedNotes?: string; 
-  mfiContact?: string; 
+type LoanDetail = LoanApplication & {
+  detailedNotes?: string;
+  mfiContact?: string;
   // repaymentStatus and buyOffEligible are already in LoanApplication
 };
 
@@ -111,7 +111,7 @@ export default function LoanDetailPage() {
       </div>
     );
   }
-  
+
   const statusInfo = {
     'Pending Review': { icon: <Loader2 className="h-5 w-5 text-yellow-500 mr-2 animate-spin" />, color: "text-yellow-500" },
     'MFI Matched': { icon: <UserCheck className="h-5 w-5 text-blue-500 mr-2" />, color: "text-blue-500" },
@@ -135,7 +135,7 @@ export default function LoanDetailPage() {
       <Button asChild variant="outline" size="sm" className="mb-6">
         <Link href="/dashboard"><ArrowLeft className="mr-2 h-4 w-4" />Back to Dashboard</Link>
       </Button>
-      
+
       <Card className="shadow-xl">
         <CardHeader>
           <div className="flex justify-between items-start">
@@ -163,15 +163,15 @@ export default function LoanDetailPage() {
               </div>
             )}
              {loan.buyOffEligible !== undefined && (
-              <InfoItem 
-                icon={<Shuffle />} 
-                label="Buy-off Option" 
-                value={loan.buyOffEligible ? 'Eligible' : 'Not Eligible'} 
+              <InfoItem
+                icon={<Shuffle />}
+                label="Buy-off Option"
+                value={loan.buyOffEligible ? 'Eligible' : 'Not Eligible'}
               />
             )}
             {loan.mfiContact && loan.mfiContact !== "N/A" && <InfoItem icon={<Info />} label="MFI Contact" value={loan.mfiContact} />}
           </div>
-          
+
           {loan.buyOffEligible && loan.buyOffDetails && (
             <div className="pt-4 mt-4 border-t">
               <h3 className="font-semibold text-lg mb-2 text-primary flex items-center"><Shuffle className="mr-2 h-5 w-5"/>Buy-off Details</h3>
@@ -196,7 +196,7 @@ export default function LoanDetailPage() {
             )}
         </CardFooter>
       </Card>
-      
+
       {loan.status === 'Pending Review' && (
          <Card className="mt-6 bg-secondary/30">
             <CardHeader>
