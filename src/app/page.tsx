@@ -10,12 +10,12 @@ export default function HomePage() {
     <div className="flex flex-col items-center space-y-12 md:space-y-20">
       <section className="text-center py-12 md:py-20">
         <Image
-          src="https://placehold.co/128x128.png"
+          src="/microfasta-app-icon.png"
           alt="MicroFasta App Icon"
           width={128}
           height={128}
           className="mx-auto mb-6 rounded-full shadow-lg"
-          data-ai-hint="mobile finance"
+          data-ai-hint="mobile finance app logo"
         />
         <h1 className="text-4xl md:text-6xl font-bold mb-6">
           Get your Logbook loan approved in <span className="text-warning">3 Hours</span>
