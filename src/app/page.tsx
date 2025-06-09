@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, TrendingUp, ShieldCheck, Clock } from "lucide-react";
@@ -10,11 +11,11 @@ export default function HomePage() {
       <section className="text-center py-12 md:py-20">
         <Image
           src="https://placehold.co/128x128.png"
-          alt="MicroFasta Fast Service"
+          alt="MicroFasta App Icon"
           width={128}
           height={128}
           className="mx-auto mb-6 rounded-full shadow-lg"
-          data-ai-hint="speed finance app"
+          data-ai-hint="mobile finance"
         />
         <h1 className="text-4xl md:text-6xl font-bold mb-6">
           Get Your Logbook Loan in <span className="text-warning">3 Hours</span>
@@ -59,11 +60,11 @@ export default function HomePage() {
             <div className="flex flex-col md:flex-row items-center gap-8">
               <Image 
                 src="https://placehold.co/600x400.png" 
-                alt="Loan Application Process" 
+                alt="MicroFasta Loan Application Process Visual" 
                 width={600} 
                 height={400} 
                 className="rounded-lg shadow-md w-full md:w-1/2 object-cover"
-                data-ai-hint="financial process"
+                data-ai-hint="app interface"
               />
               <ol className="list-decimal list-inside space-y-4 text-foreground/90 md:w-1/2">
                 <li>
