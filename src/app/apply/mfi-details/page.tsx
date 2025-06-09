@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Building, CheckSquare, Clock, FileText, Info, Percent, Phone, ShieldCheck, AlertTriangle, Loader2, UploadCloud, FileCheck } from 'lucide-react';
+import { ArrowLeft, Building, CheckSquare, Clock, FileText, Info, Percent, Phone, ShieldCheck, AlertTriangle, Loader2, UploadCloud, FileCheck, BookCopy, FileBadge, UserSquare } from 'lucide-react';
 import Link from 'next/link';
 import type { MfiInstitution } from '@/ai/flows/mfi-matching';
 import { useToast } from '@/hooks/use-toast';
@@ -21,7 +21,10 @@ export default function MfiDetailsPage() {
   const [error, setError] = useState<string | null>(null);
   const [documentsSubmitted, setDocumentsSubmitted] = useState(false);
   const [isSubmittingDocs, setIsSubmittingDocs] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const logbookFileRef = useRef<HTMLInputElement>(null);
+  const statementFileRef = useRef<HTMLInputElement>(null);
+  const idFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const mfiParam = searchParams.get('mfi');
@@ -52,10 +55,15 @@ export default function MfiDetailsPage() {
     // In a real app, you would handle file uploads here.
     // For this prototype, we just simulate success.
     console.log("Simulated document submission for:", mfi?.name);
-    if (fileInputRef.current?.files && fileInputRef.current.files.length > 0) {
-        console.log("Files selected:", fileInputRef.current.files);
+    if (logbookFileRef.current?.files && logbookFileRef.current.files.length > 0) {
+        console.log("Logbook files selected:", logbookFileRef.current.files);
     }
-
+    if (statementFileRef.current?.files && statementFileRef.current.files.length > 0) {
+        console.log("Statement files selected:", statementFileRef.current.files);
+    }
+    if (idFileRef.current?.files && idFileRef.current.files.length > 0) {
+        console.log("ID files selected:", idFileRef.current.files);
+    }
 
     setDocumentsSubmitted(true);
     setIsSubmittingDocs(false);
@@ -86,7 +94,7 @@ export default function MfiDetailsPage() {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
         <Loader2 className="h-12 w-12 animate-spin text-accent" />
-        <p className="ml-4 text-lg">Loading MFI details...</p>
+        <p className="ml-4 text-lg text-teal-700">Loading MFI details...</p>
       </div>
     );
   }
@@ -139,15 +147,25 @@ export default function MfiDetailsPage() {
             <Card className="mt-6 bg-muted/30">
               <CardHeader>
                 <CardTitle className="text-xl flex items-center text-teal-700"><UploadCloud className="mr-2 text-accent"/>Upload Your Documents</CardTitle>
-                <CardDescription>Submit the required documents to {mfi.name} for review.</CardDescription>
+                <CardDescription>Submit the required documents to {mfi.name} for review. Please upload clear copies for each category.</CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleDocumentSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="documents" className="text-sm font-medium">Required Documents</Label>
-                    <p className="text-xs text-muted-foreground mb-2">Please ensure all documents listed under 'Requirements' are included. You can upload multiple files or a single ZIP file.</p>
-                    <Input id="documents" type="file" ref={fileInputRef} multiple className="border-input" />
+                <form onSubmit={handleDocumentSubmit} className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="logbookFile" className="text-sm font-medium flex items-center"><BookCopy className="mr-2 h-4 w-4 text-accent" />Logbook Copy</Label>
+                    <Input id="logbookFile" type="file" ref={logbookFileRef} className="border-input" />
                   </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="statementFile" className="text-sm font-medium flex items-center"><FileBadge className="mr-2 h-4 w-4 text-accent" />Mpesa/Bank Statement (Last 6 months)</Label>
+                    <Input id="statementFile" type="file" ref={statementFileRef} className="border-input" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="idFile" className="text-sm font-medium flex items-center"><UserSquare className="mr-2 h-4 w-4 text-accent" />National ID / Passport Copy</Label>
+                    <Input id="idFile" type="file" ref={idFileRef} className="border-input" />
+                  </div>
+                  
                   <Button type="submit" className="w-full bg-yellow-300 text-teal-900 hover:bg-yellow-400 hover:text-teal-950" disabled={isSubmittingDocs}>
                     {isSubmittingDocs ? (
                       <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Submitting...</>
@@ -199,4 +217,5 @@ const InfoItem = ({ icon, label, value, isContact = false }: InfoItemProps) => (
     </div>
   </div>
 );
-
+    
+    
