@@ -9,7 +9,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Loader2, AlertTriangle, DollarSign, Bank, CalendarDays, Info, FileText, UserCheck, ListChecks, Shuffle, HelpCircle } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, DollarSign, Landmark, CalendarDays, Info, FileText, UserCheck, ListChecks, Shuffle, HelpCircle } from 'lucide-react';
 import type { LoanApplication } from '@/components/loan/DashboardLoanCard'; // Re-use type
 import { Badge } from '@/components/ui/badge';
 
@@ -116,7 +116,7 @@ export default function LoanDetailPage() {
     'Pending Review': { icon: <Loader2 className="h-5 w-5 text-yellow-500 mr-2 animate-spin" />, color: "text-yellow-500" },
     'MFI Matched': { icon: <UserCheck className="h-5 w-5 text-blue-500 mr-2" />, color: "text-blue-500" },
     'Approved': { icon: <FileText className="h-5 w-5 text-green-500 mr-2" />, color: "text-green-500" },
-    'Awaiting Disbursement': { icon: <Bank className="h-5 w-5 text-teal-500 mr-2" />, color: "text-teal-500" },
+    'Awaiting Disbursement': { icon: <Landmark className="h-5 w-5 text-teal-500 mr-2" />, color: "text-teal-500" },
     'Funds Disbursed': { icon: <DollarSign className="h-5 w-5 text-purple-500 mr-2" />, color: "text-purple-500" },
     'Rejected': { icon: <AlertTriangle className="h-5 w-5 text-red-500 mr-2" />, color: "text-red-500" },
   }[loan.status] || { icon: <Info className="h-5 w-5 text-gray-500 mr-2" />, color: "text-gray-500" };
@@ -150,7 +150,7 @@ export default function LoanDetailPage() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <InfoItem icon={<DollarSign />} label="Loan Amount" value={`KSH ${loan.amount.toLocaleString()}`} />
-            <InfoItem icon={<Bank />} label="MFI" value={loan.mfi || 'Pending Match'} />
+            <InfoItem icon={<Landmark />} label="MFI" value={loan.mfi || 'Pending Match'} />
             <InfoItem icon={<CalendarDays />} label="Applied Date" value={new Date(loan.appliedDate).toLocaleDateString()} />
             <InfoItem icon={<CalendarDays />} label="Last Updated" value={new Date(loan.lastUpdate).toLocaleDateString()} />
             {loan.repaymentStatus && (
