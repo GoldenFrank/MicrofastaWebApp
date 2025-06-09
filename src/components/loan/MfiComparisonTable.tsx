@@ -11,7 +11,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Info, Percent, Clock, CheckSquare, Phone, TrendingUp, FileText, ArrowRight } from "lucide-react";
+import { Info, Percent, Clock, CheckSquare, Phone, TrendingUp, FileText, ArrowRight, Globe, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 interface MfiComparisonTableProps {
@@ -37,7 +37,7 @@ export default function MfiComparisonTable({ mfiData }: MfiComparisonTableProps)
       <CardHeader>
         <CardTitle className="text-3xl font-headline text-teal-700">Recommended MFI Institutions</CardTitle>
         <CardDescription>
-          Here are some Microfinance Institutions that match your loan application. Review their details and select one to see next steps.
+          Here are some Microfinance Institutions that match your loan application. Review their details and select one to proceed with your KYC submission.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -51,7 +51,6 @@ export default function MfiComparisonTable({ mfiData }: MfiComparisonTableProps)
                 <TableHead className="text-center font-semibold text-foreground/90"><TrendingUp className="inline mr-1 h-4 w-4"/>Approval Rate</TableHead>
                 <TableHead className="font-semibold text-foreground/90"><CheckSquare className="inline mr-1 h-4 w-4"/>Requirements</TableHead>
                 <TableHead className="font-semibold text-foreground/90"><FileText className="inline mr-1 h-4 w-4"/>Loan Terms</TableHead>
-                <TableHead className="font-semibold text-foreground/90"><Phone className="inline mr-1 h-4 w-4"/>Contact</TableHead>
                 <TableHead className="text-right font-semibold text-foreground/90">Action</TableHead>
               </TableRow>
             </TableHeader>
@@ -72,11 +71,11 @@ export default function MfiComparisonTable({ mfiData }: MfiComparisonTableProps)
                       {mfi.requirements.length > 3 && <li>...and more</li>}
                     </ul>
                   </TableCell>
-                  <TableCell className="text-xs">{mfi.loanTerms}</TableCell>
-                  <TableCell>{mfi.contactInformation}</TableCell>
+                  <TableCell className="text-xs whitespace-pre-line">{mfi.loanTerms}</TableCell>
                   <TableCell className="text-right">
                     <Button asChild variant="outline" size="sm" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground">
-                      <Link href={`/apply/mfi-details?mfi=${encodeURIComponent(JSON.stringify(mfi))}`}>
+                      {/* Updated Link to point to kyc-upload page */}
+                      <Link href={`/kyc-upload?mfi=${encodeURIComponent(JSON.stringify(mfi))}`}>
                         Proceed <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
@@ -90,3 +89,4 @@ export default function MfiComparisonTable({ mfiData }: MfiComparisonTableProps)
     </Card>
   );
 }
+
