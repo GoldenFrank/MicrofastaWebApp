@@ -1,4 +1,5 @@
-import type { MfiMatchingOutput } from "@/ai/flows/mfi-matching";
+
+import type { MfiMatchingOutput, MfiInstitution } from "@/ai/flows/mfi-matching";
 import {
   Table,
   TableBody,
@@ -10,7 +11,8 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Info, Percent, Clock, CheckSquare, Phone, TrendingUp, FileText } from "lucide-react";
+import { Info, Percent, Clock, CheckSquare, Phone, TrendingUp, FileText, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 interface MfiComparisonTableProps {
   mfiData: MfiMatchingOutput;
@@ -35,7 +37,7 @@ export default function MfiComparisonTable({ mfiData }: MfiComparisonTableProps)
       <CardHeader>
         <CardTitle className="text-3xl font-headline">Recommended MFI Institutions</CardTitle>
         <CardDescription>
-          Here are some Microfinance Institutions that match your loan application. Compare their offers and choose the best one for you.
+          Here are some Microfinance Institutions that match your loan application. Review their details and select one to see next steps.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -54,7 +56,7 @@ export default function MfiComparisonTable({ mfiData }: MfiComparisonTableProps)
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mfiData.map((mfi, index) => (
+              {mfiData.map((mfi: MfiInstitution, index: number) => (
                 <TableRow key={index} className="hover:bg-muted/50 transition-colors">
                   <TableCell className="font-medium">{mfi.name}</TableCell>
                   <TableCell className="text-center">{mfi.interestRate}%</TableCell>
@@ -73,8 +75,10 @@ export default function MfiComparisonTable({ mfiData }: MfiComparisonTableProps)
                   <TableCell className="text-xs">{mfi.loanTerms}</TableCell>
                   <TableCell>{mfi.contactInformation}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="outline" size="sm" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground">
-                      Select
+                    <Button asChild variant="outline" size="sm" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground">
+                      <Link href={`/apply/mfi-details?mfi=${encodeURIComponent(JSON.stringify(mfi))}`}>
+                        Proceed <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
                     </Button>
                   </TableCell>
                 </TableRow>

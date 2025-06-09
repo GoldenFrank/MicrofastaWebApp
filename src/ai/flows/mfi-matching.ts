@@ -9,6 +9,7 @@
  * - matchMfiInstitutions - A function that matches users with MFI institutions.
  * - MfiMatchingInput - The input type for the matchMfiInstitutions function.
  * - MfiMatchingOutput - The return type for the matchMfiInstitutions function.
+ * - MfiInstitution - The type for a single MFI institution.
  */
 
 import {ai} from '@/ai/genkit';
@@ -35,6 +36,7 @@ const MfiInstitutionSchema = z.object({
   approvalRate: z.number().describe('Historical loan approval rate as a percentage'),
   loanTerms: z.string().describe('Summary of key loan terms and conditions')
 });
+export type MfiInstitution = z.infer<typeof MfiInstitutionSchema>;
 
 const MfiMatchingOutputSchema = z.array(MfiInstitutionSchema).describe('A list of suitable MFI institutions.');
 export type MfiMatchingOutput = z.infer<typeof MfiMatchingOutputSchema>;
@@ -103,4 +105,3 @@ const matchMfiInstitutionsFlow = ai.defineFlow(
     return output!;
   }
 );
-
