@@ -24,6 +24,8 @@ body {
     --accent-foreground: 208 100% 99%;
     --destructive: 0 72% 51%; /* Standard red */
     --destructive-foreground: 0 0% 98%;
+    --warning: 45 90% 50%; /* Bright Yellow */
+    --warning-foreground: 203 20% 15%; /* Dark text for yellow background */
     --border: 203 30% 85%;
     --input: 203 30% 92%;
     --ring: 203 69% 55%; /* Ring color related to primary */
@@ -63,6 +65,8 @@ body {
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
+    --warning: 45 90% 55%; /* Slightly brighter yellow for dark mode */
+    --warning-foreground: 0 0% 10%; /* Darker text for yellow background in dark mode */
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
     --ring: 203 69% 55%;

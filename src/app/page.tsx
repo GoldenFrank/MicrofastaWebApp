@@ -8,8 +8,16 @@ export default function HomePage() {
   return (
     <div className="flex flex-col items-center space-y-12">
       <section className="text-center py-12 md:py-20">
-        <h1 className="text-4xl md:text-6xl font-bold mb-6 text-primary">
-          Get Your Logbook Loan in 3 Hours
+        <Image
+          src="https://placehold.co/128x128.png"
+          alt="MicroFasta Fast Service"
+          width={128}
+          height={128}
+          className="mx-auto mb-6 rounded-full shadow-lg"
+          data-ai-hint="speed finance app"
+        />
+        <h1 className="text-4xl md:text-6xl font-bold mb-6">
+          Get Your Logbook Loan in <span className="text-warning">3 Hours</span>
         </h1>
         <p className="text-lg md:text-xl text-foreground/80 mb-8 max-w-2xl mx-auto">
           Compare offers from top MFIs in Kenya. Fast approval, competitive rates, and transparent terms.

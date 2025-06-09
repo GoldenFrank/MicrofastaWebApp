@@ -3,7 +3,7 @@ import { Compass } from 'lucide-react'; // Consider changing icon if Compass doe
 
 export default function AppLogo() {
   return (
-    <Link href="/" className="flex items-center space-x-2 text-primary hover:text-accent transition-colors">
+    <Link href="/" className="flex items-center space-x-2 text-foreground hover:text-accent transition-colors">
       <Compass className="w-8 h-8" />
       <span className="font-headline text-2xl font-semibold">
         MicroFasta
