@@ -1,3 +1,4 @@
+
 // This is a placeholder for a detailed loan view page.
 // In a real application, you would fetch loan details based on the ID.
 'use client';
@@ -5,33 +6,65 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, Loader2, AlertTriangle, DollarSign, Bank, CalendarDays, Info, FileText, UserCheck } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, DollarSign, Bank, CalendarDays, Info, FileText, UserCheck, ListChecks, Shuffle, HelpCircle } from 'lucide-react';
 import type { LoanApplication } from '@/components/loan/DashboardLoanCard'; // Re-use type
+import { Badge } from '@/components/ui/badge';
+
+// Extended type for detailed view, merging with base LoanApplication
+type LoanDetail = LoanApplication & { 
+  detailedNotes?: string; 
+  mfiContact?: string; 
+  // repaymentStatus and buyOffEligible are already in LoanApplication
+};
 
 // Mock data - in a real app, fetch this based on params.id
-const mockLoanDetails: { [key: string]: LoanApplication & { detailedNotes?: string; mfiContact?: string } } = {
+const mockLoanDetails: { [key: string]: LoanDetail } = {
   'L001AXYZ': {
     id: 'L001AXYZ', amount: 50000, mfi: 'Faulu Kenya', status: 'Pending Review', appliedDate: '2024-07-01', lastUpdate: '2024-07-15',
     detailedNotes: "Initial review in progress. Logbook verification scheduled for next week. Ensure all documents are up to date.",
-    mfiContact: "Faulu Kenya - 0711074074"
+    mfiContact: "Faulu Kenya - 0711074074",
+    repaymentStatus: 'N/A',
+    buyOffEligible: false,
   },
   'L002BCDE': {
     id: 'L002BCDE', amount: 120000, mfi: 'Platinum Credit', status: 'Approved', appliedDate: '2024-06-15', lastUpdate: '2024-07-10',
-    detailedNotes: "Loan approved. Disbursement process initiated. Funds expected in 2-3 business days.",
-    mfiContact: "Platinum Credit - 0709777000"
+    detailedNotes: "Loan approved. Awaiting your final confirmation to proceed with disbursement.",
+    mfiContact: "Platinum Credit - 0709777000",
+    repaymentStatus: 'N/A',
+    buyOffEligible: true,
+    buyOffDetails: 'Eligible for buy-off with select partners after 6 months of consistent repayment.'
   },
    'L003FGHI': {
     id: 'L003FGHI', amount: 75000, status: 'Funds Disbursed', mfi: 'Letshego', appliedDate: '2024-05-20', lastUpdate: '2024-06-05',
-    detailedNotes: "Funds were successfully disbursed on June 5th, 2024. Repayment schedule has been shared via email.",
-    mfiContact: "Letshego - contact@letshego.com"
+    detailedNotes: "Funds were successfully disbursed on June 5th, 2024. Repayment schedule has been shared via email. First installment due July 5th, 2024.",
+    mfiContact: "Letshego - contact@letshego.com",
+    repaymentStatus: 'On Track',
+    buyOffEligible: true,
+    buyOffDetails: 'Competitive buy-off offers available through MicroFasta network. Check back after 3 successful repayments.'
   },
    'L004JKLM': {
     id: 'L004JKLM', amount: 30000, status: 'Rejected', appliedDate: '2024-07-05', lastUpdate: '2024-07-08',
-    detailedNotes: "Application rejected due to incomplete documentation. Please re-apply with all required documents.",
-    mfiContact: "N/A"
+    detailedNotes: "Application rejected due to insufficient income proof and logbook valuation discrepancies. Please contact us if you have updated documents.",
+    mfiContact: "N/A",
+    repaymentStatus: 'N/A',
+    buyOffEligible: false,
+  },
+  'L005MNOP': {
+    id: 'L005MNOP', amount: 95000, mfi: 'Izwe Kenya', status: 'Funds Disbursed', appliedDate: '2024-04-10', lastUpdate: '2024-07-01',
+    detailedNotes: "Repayments are currently overdue by 15 days. Please make a payment immediately to avoid further penalties. Contact MFI for payment arrangements.",
+    mfiContact: "Izwe Kenya - 0700123456",
+    repaymentStatus: 'Overdue',
+    buyOffEligible: false,
+  },
+  'L006QRST': {
+    id: 'L006QRST', amount: 60000, mfi: 'Premier Credit', status: 'Funds Disbursed', appliedDate: '2023-12-01', lastUpdate: '2024-06-20',
+    detailedNotes: "This loan has been fully paid off. Congratulations!",
+    mfiContact: "Premier Credit - 0701987654",
+    repaymentStatus: 'Paid Off',
+    buyOffEligible: false, // Or potentially true if a new loan can be taken
   },
 };
 
@@ -41,7 +74,7 @@ export default function LoanDetailPage() {
   const loanId = params.id as string;
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
-  const [loan, setLoan] = useState<(LoanApplication & { detailedNotes?: string; mfiContact?: string }) | null>(null);
+  const [loan, setLoan] = useState<LoanDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -88,6 +121,14 @@ export default function LoanDetailPage() {
     'Rejected': { icon: <AlertTriangle className="h-5 w-5 text-red-500 mr-2" />, color: "text-red-500" },
   }[loan.status] || { icon: <Info className="h-5 w-5 text-gray-500 mr-2" />, color: "text-gray-500" };
 
+  const repaymentStatusColors = {
+    'On Track': 'text-green-600 bg-green-100',
+    'Overdue': 'text-red-600 bg-red-100',
+    'Paid Off': 'text-blue-600 bg-blue-100',
+    'Defaulted': 'text-destructive bg-destructive/10',
+    'N/A': 'text-muted-foreground bg-muted/30'
+  };
+  const repaymentBadgeClasses = repaymentStatusColors[loan.repaymentStatus || 'N/A'] || repaymentStatusColors['N/A'];
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -97,41 +138,82 @@ export default function LoanDetailPage() {
       
       <Card className="shadow-xl">
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-start">
             <CardTitle className="text-3xl font-headline">Loan Details: {loan.id}</CardTitle>
-            <span className={`flex items-center font-semibold ${statusInfo.color}`}>
+            <Badge variant="outline" className={`flex items-center font-semibold px-3 py-1 ${statusInfo.color} border-transparent`}>
               {statusInfo.icon}
               {loan.status}
-            </span>
+            </Badge>
           </div>
-          <CardDescription>Detailed information about your loan application.</CardDescription>
+          <CardDescription>Detailed information about your loan application with {loan.mfi || "MicroFasta"}.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <InfoItem icon={<DollarSign />} label="Loan Amount" value={`$${loan.amount.toLocaleString()}`} />
-            <InfoItem icon={<Bank />} label="MFI" value={loan.mfi || 'Not Assigned'} />
+            <InfoItem icon={<DollarSign />} label="Loan Amount" value={`KSH ${loan.amount.toLocaleString()}`} />
+            <InfoItem icon={<Bank />} label="MFI" value={loan.mfi || 'Pending Match'} />
             <InfoItem icon={<CalendarDays />} label="Applied Date" value={new Date(loan.appliedDate).toLocaleDateString()} />
             <InfoItem icon={<CalendarDays />} label="Last Updated" value={new Date(loan.lastUpdate).toLocaleDateString()} />
+            {loan.repaymentStatus && (
+              <div className="flex items-center p-3 bg-muted/30 rounded-md md:col-span-1">
+                 <ListChecks className="w-5 h-5 mr-3 text-primary" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Repayment Status</p>
+                  <Badge variant="outline" className={`px-2 py-0.5 ${repaymentBadgeClasses}`}>{loan.repaymentStatus}</Badge>
+                </div>
+              </div>
+            )}
+             {loan.buyOffEligible !== undefined && (
+              <InfoItem 
+                icon={<Shuffle />} 
+                label="Buy-off Option" 
+                value={loan.buyOffEligible ? 'Eligible' : 'Not Eligible'} 
+              />
+            )}
             {loan.mfiContact && loan.mfiContact !== "N/A" && <InfoItem icon={<Info />} label="MFI Contact" value={loan.mfiContact} />}
           </div>
           
+          {loan.buyOffEligible && loan.buyOffDetails && (
+            <div className="pt-4 mt-4 border-t">
+              <h3 className="font-semibold text-lg mb-2 text-primary flex items-center"><Shuffle className="mr-2 h-5 w-5"/>Buy-off Details</h3>
+              <p className="text-foreground/80 whitespace-pre-line">{loan.buyOffDetails}</p>
+            </div>
+          )}
+
           {loan.detailedNotes && (
             <div className="pt-4 mt-4 border-t">
-              <h3 className="font-semibold text-lg mb-2 text-primary">Application Notes</h3>
+              <h3 className="font-semibold text-lg mb-2 text-primary flex items-center"><FileText className="mr-2 h-5 w-5"/>Application Notes</h3>
               <p className="text-foreground/80 whitespace-pre-line">{loan.detailedNotes}</p>
             </div>
           )}
 
         </CardContent>
+        <CardFooter className="flex-col items-start space-y-2 text-xs text-muted-foreground">
+            <p>
+                MicroFasta helps you find and track loans. The actual loan agreement is between you and {loan.mfi || "the MFI"}.
+            </p>
+            {loan.status === 'Approved' && (
+                <p className="font-semibold text-primary">Action Required: Please confirm with {loan.mfi} to proceed with disbursement.</p>
+            )}
+        </CardFooter>
       </Card>
       
       {loan.status === 'Pending Review' && (
-         <Card className="mt-6 bg-secondary/50">
+         <Card className="mt-6 bg-secondary/30">
             <CardHeader>
                 <CardTitle className="text-xl flex items-center"><Info className="mr-2 text-accent"/>Next Steps</CardTitle>
             </CardHeader>
             <CardContent>
-                <p className="text-secondary-foreground">Your application is under review. We will notify you of any updates. You may be contacted if additional information is required.</p>
+                <p className="text-secondary-foreground">Your application is under review. We will notify you of any updates. You may be contacted by MicroFasta or the MFI if additional information is required.</p>
+            </CardContent>
+         </Card>
+      )}
+      {loan.repaymentStatus === 'Overdue' && (
+         <Card className="mt-6 border-destructive bg-destructive/10">
+            <CardHeader>
+                <CardTitle className="text-xl flex items-center text-destructive"><AlertTriangle className="mr-2"/>Action Required: Overdue Payment</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p className="text-destructive/90">Your loan payment is overdue. Please contact {loan.mfi} immediately at {loan.mfiContact || 'their contact number'} to make arrangements and avoid further penalties.</p>
             </CardContent>
          </Card>
       )}

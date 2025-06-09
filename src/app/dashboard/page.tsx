@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -18,6 +19,8 @@ const mockLoans: LoanApplication[] = [
     status: 'Pending Review',
     appliedDate: '2024-07-01',
     lastUpdate: '2024-07-15',
+    repaymentStatus: 'N/A',
+    buyOffEligible: false,
   },
   {
     id: 'L002BCDE',
@@ -26,6 +29,9 @@ const mockLoans: LoanApplication[] = [
     status: 'Approved',
     appliedDate: '2024-06-15',
     lastUpdate: '2024-07-10',
+    repaymentStatus: 'N/A',
+    buyOffEligible: true,
+    buyOffDetails: 'Eligible for buy-off with select partners after 6 months.'
   },
   {
     id: 'L003FGHI',
@@ -34,6 +40,9 @@ const mockLoans: LoanApplication[] = [
     mfi: 'Letshego',
     appliedDate: '2024-05-20',
     lastUpdate: '2024-06-05',
+    repaymentStatus: 'On Track',
+    buyOffEligible: true,
+    buyOffDetails: 'Competitive buy-off offers available through MicroFasta network.'
   },
   {
     id: 'L004JKLM',
@@ -41,7 +50,29 @@ const mockLoans: LoanApplication[] = [
     status: 'Rejected',
     appliedDate: '2024-07-05',
     lastUpdate: '2024-07-08',
+    repaymentStatus: 'N/A',
+    buyOffEligible: false,
   },
+   {
+    id: 'L005MNOP',
+    amount: 95000,
+    status: 'Funds Disbursed',
+    mfi: 'Izwe Kenya',
+    appliedDate: '2024-04-10',
+    lastUpdate: '2024-07-01',
+    repaymentStatus: 'Overdue',
+    buyOffEligible: false,
+  },
+  {
+    id: 'L006QRST',
+    amount: 60000,
+    status: 'Funds Disbursed',
+    mfi: 'Premier Credit',
+    appliedDate: '2023-12-01',
+    lastUpdate: '2024-06-20',
+    repaymentStatus: 'Paid Off',
+    buyOffEligible: false,
+  }
 ];
 
 export default function DashboardPage() {

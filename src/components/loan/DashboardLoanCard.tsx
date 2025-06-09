@@ -1,8 +1,9 @@
+
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CalendarDays, DollarSign, Info, CheckCircle, AlertCircle, XCircle, Hourglass, Banknote } from "lucide-react";
+import { CalendarDays, DollarSign, Info, CheckCircle, AlertCircle, XCircle, Hourglass, Banknote, ListChecks, Shuffle } from "lucide-react";
 import Link from "next/link";
 
 export interface LoanApplication {
@@ -12,6 +13,9 @@ export interface LoanApplication {
   status: 'Pending Review' | 'MFI Matched' | 'Approved' | 'Awaiting Disbursement' | 'Funds Disbursed' | 'Rejected';
   appliedDate: string;
   lastUpdate: string;
+  repaymentStatus?: 'On Track' | 'Overdue' | 'Paid Off' | 'Defaulted' | 'N/A';
+  buyOffEligible?: boolean;
+  buyOffDetails?: string;
 }
 
 interface DashboardLoanCardProps {
@@ -82,12 +86,24 @@ export default function DashboardLoanCard({ loan }: DashboardLoanCardProps) {
       <CardContent className="space-y-3 flex-grow">
         <div className="flex items-center text-sm text-muted-foreground">
           <DollarSign className="w-4 h-4 mr-2 text-primary" />
-          <span>Amount: <span className="font-semibold text-foreground">${loan.amount.toLocaleString()}</span></span>
+          <span>Amount: <span className="font-semibold text-foreground">KSH {loan.amount.toLocaleString()}</span></span>
         </div>
         {loan.mfi && (
           <div className="flex items-center text-sm text-muted-foreground">
             <Info className="w-4 h-4 mr-2 text-primary" />
             <span>MFI: <span className="font-semibold text-foreground">{loan.mfi}</span></span>
+          </div>
+        )}
+        {loan.repaymentStatus && loan.repaymentStatus !== 'N/A' && (
+          <div className="flex items-center text-sm text-muted-foreground">
+            <ListChecks className="w-4 h-4 mr-2 text-primary" />
+            <span>Repayment: <span className="font-semibold text-foreground">{loan.repaymentStatus}</span></span>
+          </div>
+        )}
+        {loan.buyOffEligible !== undefined && (
+           <div className="flex items-center text-sm text-muted-foreground">
+            <Shuffle className="w-4 h-4 mr-2 text-primary" />
+            <span>Buy-off: <span className="font-semibold text-foreground">{loan.buyOffEligible ? 'Eligible' : 'Not Eligible'}</span></span>
           </div>
         )}
         <div className="flex items-center text-sm text-muted-foreground">
