@@ -11,7 +11,7 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const EligibilityCheckInputSchema = z.object({
+const EligibilityCheckInputSchema = z.object({
   logbookDetails: z
     .string()
     .describe('Detailed description of the vehicle logbook (e.g., "Toyota Axio KDA 123X, 2015, Chassis XXX, Engine YYY").'),
@@ -21,7 +21,7 @@ export const EligibilityCheckInputSchema = z.object({
 });
 export type EligibilityCheckInput = z.infer<typeof EligibilityCheckInputSchema>;
 
-export const EligibilityCheckOutputSchema = z.object({
+const EligibilityCheckOutputSchema = z.object({
   isEligible: z.boolean().describe('Whether the applicant is deemed eligible for a loan based on the inputs.'),
   eligibleAmount: z.number().describe('The estimated loan amount the applicant is eligible for. Could be 0 if not eligible or if criteria are not met.'),
   feedback: z.string().describe('Feedback explaining the eligibility decision, factors considered (like vehicle age from logbook details, income to loan ratio), and any advice.'),
