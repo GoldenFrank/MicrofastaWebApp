@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -60,7 +61,7 @@ export default function LoanApplicationForm({ onSubmit, isSubmitting }: LoanAppl
   return (
     <Card className="w-full max-w-2xl mx-auto shadow-xl">
       <CardHeader>
-        <CardTitle className="text-3xl font-headline">Apply for a Logbook Loan</CardTitle>
+        <CardTitle className="text-3xl font-headline text-teal-700">Apply for a Logbook Loan</CardTitle>
         <CardDescription>Fill in your details below to get matched with MFI institutions.</CardDescription>
       </CardHeader>
       <CardContent>
@@ -169,7 +170,7 @@ export default function LoanApplicationForm({ onSubmit, isSubmitting }: LoanAppl
               )}
             />
             
-            <Button type="submit" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isSubmitting}>
+            <Button type="submit" className="w-full bg-yellow-300 text-teal-900 hover:bg-yellow-400 hover:text-teal-950" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isSubmitting ? 'Finding MFIs...' : 'Find Suitable MFIs'}
             </Button>

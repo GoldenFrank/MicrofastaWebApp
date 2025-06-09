@@ -23,7 +23,7 @@ export default function MfiComparisonTable({ mfiData }: MfiComparisonTableProps)
     return (
       <Card className="mt-8 shadow-lg">
         <CardHeader>
-          <CardTitle className="flex items-center"><Info className="mr-2 text-primary" /> No MFI Matches Found</CardTitle>
+          <CardTitle className="flex items-center text-teal-700"><Info className="mr-2 text-accent" /> No MFI Matches Found</CardTitle>
         </CardHeader>
         <CardContent>
           <p>We couldn&apos;t find any MFI institutions matching your criteria at the moment. Please try adjusting your application details or check back later.</p>
@@ -35,7 +35,7 @@ export default function MfiComparisonTable({ mfiData }: MfiComparisonTableProps)
   return (
     <Card className="mt-10 shadow-xl">
       <CardHeader>
-        <CardTitle className="text-3xl font-headline">Recommended MFI Institutions</CardTitle>
+        <CardTitle className="text-3xl font-headline text-teal-700">Recommended MFI Institutions</CardTitle>
         <CardDescription>
           Here are some Microfinance Institutions that match your loan application. Review their details and select one to see next steps.
         </CardDescription>

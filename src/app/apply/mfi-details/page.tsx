@@ -1,7 +1,7 @@
 
 'use client';
 
-import React from 'react'; // Added React import
+import React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -41,7 +41,7 @@ export default function MfiDetailsPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] text-center">
         <AlertTriangle className="h-16 w-16 text-destructive mb-4" />
-        <CardTitle className="text-2xl mb-2">Error Loading MFI Details</CardTitle>
+        <CardTitle className="text-2xl mb-2 text-teal-700">Error Loading MFI Details</CardTitle>
         <CardDescription className="mb-4">{error}</CardDescription>
         <Button asChild variant="outline">
           <Link href="/apply"><ArrowLeft className="mr-2 h-4 w-4" />Back to Application</Link>
@@ -53,7 +53,7 @@ export default function MfiDetailsPage() {
   if (!mfi) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <Loader2 className="h-12 w-12 animate-spin text-accent" />
         <p className="ml-4 text-lg">Loading MFI details...</p>
       </div>
     );
@@ -68,9 +68,9 @@ export default function MfiDetailsPage() {
       <Card className="shadow-xl">
         <CardHeader>
           <div className="flex items-center space-x-3">
-            <Building className="w-10 h-10 text-primary" />
+            <Building className="w-10 h-10 text-accent" />
             <div>
-              <CardTitle className="text-3xl font-headline">{mfi.name}</CardTitle>
+              <CardTitle className="text-3xl font-headline text-teal-700">{mfi.name}</CardTitle>
               <CardDescription>Next steps to apply with {mfi.name}.</CardDescription>
             </div>
           </div>
@@ -92,14 +92,14 @@ export default function MfiDetailsPage() {
           </div>
 
           <div>
-            <h3 className="font-semibold text-lg mb-2 flex items-center"><CheckSquare className="mr-2 text-primary"/>Requirements:</h3>
+            <h3 className="font-semibold text-lg mb-2 flex items-center"><CheckSquare className="mr-2 text-accent"/>Requirements:</h3>
             <ul className="list-disc list-inside pl-5 space-y-1 text-foreground/80">
               {mfi.requirements.map((req, i) => <li key={i}>{req}</li>)}
             </ul>
           </div>
 
           <div>
-            <h3 className="font-semibold text-lg mb-2 flex items-center"><FileText className="mr-2 text-primary"/>Loan Terms & Conditions:</h3>
+            <h3 className="font-semibold text-lg mb-2 flex items-center"><FileText className="mr-2 text-accent"/>Loan Terms & Conditions:</h3>
             <p className="text-foreground/80 whitespace-pre-line">{mfi.loanTerms}</p>
           </div>
         </CardContent>
@@ -121,7 +121,7 @@ interface InfoItemProps {
 }
 const InfoItem = ({ icon, label, value, isContact = false }: InfoItemProps) => (
   <div className="flex items-start p-3 bg-muted/30 rounded-md">
-    <span className="text-primary mr-3 pt-1">{React.cloneElement(icon as React.ReactElement, { className: "w-5 h-5" })}</span>
+    <span className="text-accent mr-3 pt-1">{React.cloneElement(icon as React.ReactElement, { className: "w-5 h-5" })}</span>
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
       {isContact && (typeof value === 'string' && (value.startsWith('http') || value.startsWith('mailto:') || value.startsWith('tel:'))) ? (

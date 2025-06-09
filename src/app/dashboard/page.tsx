@@ -120,10 +120,10 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-        <h1 className="text-3xl md:text-4xl font-bold font-headline text-primary">
+        <h1 className="text-3xl md:text-4xl font-bold font-headline text-teal-700">
           Welcome, {user.displayName || user.email}!
         </h1>
-        <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+        <Button asChild size="lg" className="bg-yellow-300 text-teal-900 hover:bg-yellow-400 hover:text-teal-950">
           <Link href="/apply">
             <PlusCircle className="mr-2 h-5 w-5" />
             New Loan Application
@@ -145,11 +145,11 @@ export default function DashboardPage() {
             className="mx-auto mb-6 rounded-md opacity-70"
             data-ai-hint="empty state"
           />
-          <h2 className="text-2xl font-semibold mb-3 text-foreground/90">No Loan Applications Yet</h2>
+          <h2 className="text-2xl font-semibold mb-3 text-teal-700">No Loan Applications Yet</h2>
           <p className="text-muted-foreground mb-6">
             It looks like you haven&apos;t applied for any loans. <br/>Start your financial journey by applying today!
           </p>
-          <Button asChild size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+          <Button asChild size="lg" className="bg-yellow-300 text-teal-900 hover:bg-yellow-400 hover:text-teal-950">
             <Link href="/apply">Apply for a New Loan</Link>
           </Button>
         </div>

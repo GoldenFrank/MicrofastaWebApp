@@ -3,7 +3,7 @@
 // In a real application, you would fetch loan details based on the ID.
 'use client';
 
-import React, { useEffect, useState } from 'react'; // Added React import
+import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -93,7 +93,7 @@ export default function LoanDetailPage() {
   if (authLoading || isLoading) {
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <Loader2 className="h-12 w-12 animate-spin text-accent" />
         <p className="ml-4 text-lg">Loading loan details...</p>
       </div>
     );
@@ -103,7 +103,7 @@ export default function LoanDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] text-center">
         <AlertTriangle className="h-16 w-16 text-destructive mb-4" />
-        <CardTitle className="text-2xl mb-2">Loan Not Found</CardTitle>
+        <CardTitle className="text-2xl mb-2 text-teal-700">Loan Not Found</CardTitle>
         <CardDescription className="mb-4">The loan details you are looking for could not be found or you do not have permission to view it.</CardDescription>
         <Button asChild variant="outline">
           <Link href="/dashboard"><ArrowLeft className="mr-2 h-4 w-4" />Back to Dashboard</Link>
@@ -139,7 +139,7 @@ export default function LoanDetailPage() {
       <Card className="shadow-xl">
         <CardHeader>
           <div className="flex justify-between items-start">
-            <CardTitle className="text-3xl font-headline">Loan Details: {loan.id}</CardTitle>
+            <CardTitle className="text-3xl font-headline text-teal-700">Loan Details: {loan.id}</CardTitle>
             <Badge variant="outline" className={`flex items-center font-semibold px-3 py-1 ${statusInfo.color} border-transparent`}>
               {statusInfo.icon}
               {loan.status}
@@ -155,7 +155,7 @@ export default function LoanDetailPage() {
             <InfoItem icon={<CalendarDays />} label="Last Updated" value={new Date(loan.lastUpdate).toLocaleDateString()} />
             {loan.repaymentStatus && (
               <div className="flex items-center p-3 bg-muted/30 rounded-md md:col-span-1">
-                 <ListChecks className="w-5 h-5 mr-3 text-primary" />
+                 <ListChecks className="w-5 h-5 mr-3 text-accent" />
                 <div>
                   <p className="text-xs text-muted-foreground">Repayment Status</p>
                   <Badge variant="outline" className={`px-2 py-0.5 ${repaymentBadgeClasses}`}>{loan.repaymentStatus}</Badge>
@@ -174,14 +174,14 @@ export default function LoanDetailPage() {
 
           {loan.buyOffEligible && loan.buyOffDetails && (
             <div className="pt-4 mt-4 border-t">
-              <h3 className="font-semibold text-lg mb-2 text-primary flex items-center"><Shuffle className="mr-2 h-5 w-5"/>Buy-off Details</h3>
+              <h3 className="font-semibold text-lg mb-2 text-accent flex items-center"><Shuffle className="mr-2 h-5 w-5"/>Buy-off Details</h3>
               <p className="text-foreground/80 whitespace-pre-line">{loan.buyOffDetails}</p>
             </div>
           )}
 
           {loan.detailedNotes && (
             <div className="pt-4 mt-4 border-t">
-              <h3 className="font-semibold text-lg mb-2 text-primary flex items-center"><FileText className="mr-2 h-5 w-5"/>Application Notes</h3>
+              <h3 className="font-semibold text-lg mb-2 text-accent flex items-center"><FileText className="mr-2 h-5 w-5"/>Application Notes</h3>
               <p className="text-foreground/80 whitespace-pre-line">{loan.detailedNotes}</p>
             </div>
           )}
@@ -192,7 +192,7 @@ export default function LoanDetailPage() {
                 MicroFasta helps you find and track loans. The actual loan agreement is between you and {loan.mfi || "the MFI"}.
             </p>
             {loan.status === 'Approved' && (
-                <p className="font-semibold text-primary">Action Required: Please confirm with {loan.mfi} to proceed with disbursement.</p>
+                <p className="font-semibold text-accent">Action Required: Please confirm with {loan.mfi} to proceed with disbursement.</p>
             )}
         </CardFooter>
       </Card>
@@ -200,7 +200,7 @@ export default function LoanDetailPage() {
       {loan.status === 'Pending Review' && (
          <Card className="mt-6 bg-secondary/30">
             <CardHeader>
-                <CardTitle className="text-xl flex items-center"><Info className="mr-2 text-accent"/>Next Steps</CardTitle>
+                <CardTitle className="text-xl flex items-center text-teal-700"><Info className="mr-2 text-accent"/>Next Steps</CardTitle>
             </CardHeader>
             <CardContent>
                 <p className="text-secondary-foreground">Your application is under review. We will notify you of any updates. You may be contacted by MicroFasta or the MFI if additional information is required.</p>
@@ -228,11 +228,10 @@ interface InfoItemProps {
 }
 const InfoItem = ({ icon, label, value }: InfoItemProps) => (
   <div className="flex items-center p-3 bg-muted/30 rounded-md">
-    <span className="text-primary mr-3">{React.cloneElement(icon as React.ReactElement, { className: "w-5 h-5" })}</span>
+    <span className="text-accent mr-3">{React.cloneElement(icon as React.ReactElement, { className: "w-5 h-5" })}</span>
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="font-semibold text-foreground">{value}</p>
     </div>
   </div>
 );
-
