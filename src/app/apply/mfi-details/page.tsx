@@ -153,12 +153,12 @@ export default function MfiDetailsPage() {
           </Alert>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm pt-4">
-            <InfoItem icon={<Percent className="text-accent"/>} label="Interest Rate" value={`${mfi.interestRate}%`} />
-            <InfoItem icon={<Clock className="text-accent"/>} label="Processing Time" value={mfi.processingTime} />
-            <InfoItem icon={<Phone className="text-accent"/>} label="Contact Information" value={mfi.contactInformation} isContact />
-            <InfoItem icon={<Info className="text-accent"/>} label="Approval Rate" value={`${(mfi.approvalRate * 100).toFixed(0)}%`} />
-            {mfi.websiteUrl && <InfoItem icon={<Globe className="text-accent"/>} label="Website" value={mfi.websiteUrl} isLink />}
-            {mfi.applicationUrl && <InfoItem icon={<ExternalLink className="text-accent"/>} label="Apply Online" value={mfi.applicationUrl} isLink />}
+            <InfoItem icon={<Percent />} label="Interest Rate" value={`${mfi.interestRate}%`} />
+            <InfoItem icon={<Clock />} label="Processing Time" value={mfi.processingTime} />
+            <InfoItem icon={<Phone />} label="Contact Information" value={mfi.contactInformation} isContact />
+            <InfoItem icon={<Info />} label="Approval Rate" value={`${(mfi.approvalRate * 100).toFixed(0)}%`} />
+            {mfi.websiteUrl && <InfoItem icon={<Globe />} label="Website" value={mfi.websiteUrl} isLink />}
+            {mfi.applicationUrl && <InfoItem icon={<ExternalLink />} label="Apply Online" value={mfi.applicationUrl} isLink />}
           </div>
 
           <div>
@@ -240,9 +240,14 @@ const InfoItem = ({ icon, label, value, isContact = false, isLink = false }: Inf
     <span className="mr-3 pt-1">{React.cloneElement(icon as React.ReactElement, { className: "w-5 h-5 text-accent" })}</span>
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
-      {(isContact || isLink) && (typeof value === 'string' && (value.startsWith('http') || value.startsWith('mailto:') || value.startsWith('tel:'))) ? (
-        <a href={value} target="_blank" rel="noopener noreferrer" className="font-semibold text-foreground hover:underline break-all">
-          {isLink ? value : value.replace(/^(mailto:|tel:)/, '')}
+      {(isContact || (isLink && typeof value === 'string')) ? (
+        <a 
+          href={(isContact && typeof value === 'string' && /^\d[\d\s-()]*\d$/.test(value)) ? `tel:${value.replace(/\s|-|\(|\)/g, '')}` : (typeof value === 'string' ? value : '#')} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="font-semibold text-foreground hover:underline break-all"
+        >
+          {typeof value === 'string' && (isContact && !value.startsWith('http') && !value.startsWith('mailto:')) ? value : value.replace(/^(mailto:|tel:)/, '')}
         </a>
       ) : (
         <p className="font-semibold text-foreground">{value}</p>
