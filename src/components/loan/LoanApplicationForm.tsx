@@ -111,7 +111,7 @@ export default function LoanApplicationForm({ onSubmit, isSubmitting, submitButt
                 <FormItem>
                   <FormLabel>Loan Amount Requested (KES)</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="e.g., 50000" {...field} />
+                    <Input type="number" placeholder="e.g., 50000" {...field} value={field.value ?? ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -125,7 +125,7 @@ export default function LoanApplicationForm({ onSubmit, isSubmitting, submitButt
                 <FormItem>
                   <FormLabel>Your Average Monthly Income (KES)</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="e.g., 75000" {...field} />
+                    <Input type="number" placeholder="e.g., 75000" {...field} value={field.value ?? ""} />
                   </FormControl>
                    <FormDescription>
                     Your declared net monthly income.
@@ -166,7 +166,7 @@ export default function LoanApplicationForm({ onSubmit, isSubmitting, submitButt
                 <FormItem>
                   <FormLabel>Credit Score (Optional)</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="e.g., 650" {...field} />
+                    <Input type="number" placeholder="e.g., 650" {...field} value={field.value ?? ""} />
                   </FormControl>
                   <FormDescription>
                     If known, your credit score (typically 0-1000). Used in MFI matching.
