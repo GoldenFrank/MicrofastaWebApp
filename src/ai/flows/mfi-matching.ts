@@ -35,8 +35,8 @@ const MfiInstitutionSchema = z.object({
   contactInformation: z.string().describe('Contact details for the MFI institution (phone or general inquiry).'),
   approvalRate: z.number().describe('Historical loan approval rate as a decimal (e.g., 0.85 for 85%).'),
   loanTerms: z.string().describe('Summary of key loan terms and conditions (e.g., "Max loan tenure 24 months", "Logbook must be for vehicle not older than 10 years").'),
-  websiteUrl: z.string().url().optional().describe('Official website URL of the MFI.'),
-  applicationUrl: z.string().url().optional().describe('Direct URL to the MFI loan application page, if available.'),
+  websiteUrl: z.string().optional().describe('Official website URL of the MFI.'),
+  applicationUrl: z.string().optional().describe('Direct URL to the MFI loan application page, if available.'),
 });
 export type MfiInstitution = z.infer<typeof MfiInstitutionSchema>;
 
