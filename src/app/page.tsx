@@ -4,8 +4,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Car, Clock, Shield, Scale3d, Smartphone, Eye, Rocket, GitCompareArrows, FileText as FileTextIcon, BarChartBig as AssessmentIcon, Banknote as GetFundedIcon, Phone, Mail } from "lucide-react";
-import Image from "next/image";
+import { Car, Clock, Shield, Smartphone, Eye, Rocket, GitCompareArrows, FileText as FileTextIcon, BarChartBig as AssessmentIcon, Banknote as GetFundedIcon, Phone, Mail } from "lucide-react";
 
 
 export default function HomePage() {
@@ -14,7 +13,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-teal-400 to-cyan-600 text-white py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 gap-12 items-center"> {/* Removed lg:grid-cols-2 as image is removed */}
             <div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 font-headline">
                 Get your Logbook Loan approved in{" "}
@@ -61,18 +60,7 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-            <div className="lg:pl-8">
-              <div className="relative mx-auto w-full max-w-xs h-auto aspect-[3/4] bg-teal-900 rounded-3xl p-2 shadow-2xl transform transition-transform duration-300 hover:rotate-0 lg:rotate-3">
-                <Image
-                  src="/microfasta-app-icon.png"
-                  alt="MicroFasta App Preview"
-                  width={300}
-                  height={400}
-                  className="w-full h-full object-cover rounded-2xl"
-                  data-ai-hint="mobile app interface"
-                />
-              </div>
-            </div>
+            {/* Removed Image Section */}
           </div>
         </div>
       </section>
@@ -124,7 +112,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-xl font-semibold text-teal-800 mb-2">MFI Matching</h3>
                 <p className="text-teal-700 text-sm">
-                  Compare offers from our partner MFIs and choose the best one.
+                  Our AI-powered system helps you find suitable MFI partners and choose the best one.
                 </p>
               </CardContent>
             </Card>
@@ -176,28 +164,7 @@ export default function HomePage() {
         </div>
       </section>
       
-      {/* Contact Us Section - Retained as per previous request, separate from CTA */}
-      <section id="contact-us" className="py-16 md:py-24 bg-white">
-        <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-            <h2 className="text-3xl md:text-4xl font-bold text-teal-700 mb-6 font-headline">Contact Us</h2>
-            <p className="text-xl text-teal-600 mb-8 max-w-2xl mx-auto">
-                Have questions or need assistance? Our team is ready to help you.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-6 text-lg">
-                <a href="tel:0742241585" className="flex items-center text-teal-700 hover:text-yellow-500 transition-colors">
-                    <Phone className="mr-2 h-6 w-6"/> 0742241585
-                </a>
-                <a href="mailto:Info@microfasta.co.ke" className="flex items-center text-teal-700 hover:text-yellow-500 transition-colors">
-                    <Mail className="mr-2 h-6 w-6"/> Info@microfasta.co.ke
-                </a>
-            </div>
-             <div className="mt-10">
-                <Button asChild size="lg" className="bg-yellow-300 text-teal-900 hover:bg-yellow-400 hover:text-teal-950">
-                    <Link href="/apply">Get Started with Your Loan</Link>
-                </Button>
-            </div>
-        </div>
-      </section>
+      {/* Removed Contact Us Section */}
 
       {/* Call to Action */}
       <section className="bg-gradient-to-br from-cyan-600 to-teal-700 text-yellow-50 py-16 md:py-20 text-center">
@@ -214,7 +181,10 @@ export default function HomePage() {
           >
             <Link href="/apply">Apply Now</Link>
           </Button>
-          <div className="mt-8 text-teal-100 space-y-2 md:space-y-0 md:flex md:justify-center md:items-center md:gap-6">
+          <p className="text-lg text-teal-100 mt-8 mb-4">
+            Have questions or need assistance? Our team is ready to help you.
+          </p>
+          <div className="mt-4 text-teal-100 space-y-2 md:space-y-0 md:flex md:justify-center md:items-center md:gap-6"> {/* Adjusted margin from mt-8 to mt-4 */}
             <a href="tel:0742241585" className="flex items-center justify-center hover:text-yellow-300 transition-colors">
               <Phone className="mr-2 h-5 w-5"/> Call us: 0742241585
             </a>
@@ -245,3 +215,4 @@ const FeatureCard = ({ icon, title, description }: FeatureCardProps) => (
     </CardContent>
   </Card>
 );
+
