@@ -15,6 +15,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 
+const LOCAL_STORAGE_MFI_LIST_KEY = 'mfiListFromApplyPage';
+
 export default function KycUploadPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -25,57 +27,66 @@ export default function KycUploadPage() {
   const [error, setError] = useState<string | null>(null);
   const [documentsSubmitted, setDocumentsSubmitted] = useState(false);
   const [isSubmittingDocs, setIsSubmittingDocs] = useState(false);
+  const [isLoadingMfi, setIsLoadingMfi] = useState(true);
   
   const logbookFileRef = useRef<HTMLInputElement>(null);
   const statementFileRef = useRef<HTMLInputElement>(null);
   const idFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // This effect handles redirection if the user is not authenticated.
     if (!authLoading && !user) {
-      const mfiParamForRedirect = searchParams.get('mfi');
-      const redirectPath = mfiParamForRedirect ? `/kyc-upload?mfi=${encodeURIComponent(mfiParamForRedirect)}` : '/kyc-upload';
+      const mfiNameParamForRedirect = searchParams.get('mfiName');
+      const redirectPath = mfiNameParamForRedirect ? `/kyc-upload?mfiName=${encodeURIComponent(mfiNameParamForRedirect)}` : '/kyc-upload';
       router.push(`/login?redirect=${encodeURIComponent(redirectPath)}`);
     }
   }, [user, authLoading, router, searchParams]);
   
   useEffect(() => {
-    // This effect handles MFI data processing.
-    // It should only run after authentication is resolved and a user exists.
     if (authLoading || !user) {
-      // If still loading auth or no user, don't process mfiParam yet.
+      return;
+    }
+    setIsLoadingMfi(true);
+    setError(null); // Reset error on param change or user change
+    setMfi(null); // Reset MFI on param change
+
+    const mfiNameParam = searchParams.get('mfiName');
+
+    if (!mfiNameParam) {
+      setError("MFI identifier missing from URL. Please go back to the MFI list and select an MFI.");
+      setIsLoadingMfi(false);
       return;
     }
 
-    const mfiParam = searchParams.get('mfi');
-    if (mfiParam) {
-      let decodedMfiParam: string;
-      try {
-        decodedMfiParam = decodeURIComponent(mfiParam);
-      } catch (uriError) {
-        setError("Invalid MFI data in URL. It might be corrupted or improperly encoded. Please go back and try again.");
-        // Log the raw mfiParam to help debug if it's consistently malformed
-        console.error("Failed to decode MFI parameter (KYC Page):", uriError, "Raw mfiParam was:", mfiParam);
-        return; // Exit this effect execution path
-      }
+    try {
+      const decodedMfiName = decodeURIComponent(mfiNameParam);
+      const mfiListString = localStorage.getItem(LOCAL_STORAGE_MFI_LIST_KEY);
 
-      try {
-        const parsedMfi = JSON.parse(decodedMfiParam);
-        if (parsedMfi && parsedMfi.name && parsedMfi.contactInformation) {
-          setMfi(parsedMfi);
-        } else {
-          setError("Invalid MFI data structure received (KYC Page). Please ensure all required fields are present and try selecting an MFI again.");
-          console.error("Parsed MFI data missing required fields (KYC Page):", parsedMfi, "Decoded mfiParam was:", decodedMfiParam);
-        }
-      } catch (jsonError) {
-        setError("Could not load MFI details due to a parsing error (KYC Page). Please go back and try again.");
-        console.error("Failed to parse MFI JSON data (KYC Page):", jsonError, "Decoded mfiParam was:", decodedMfiParam);
+      if (!mfiListString) {
+        setError("MFI data not found. This can happen if you navigated here directly. Please start from the MFI comparison page.");
+        setIsLoadingMfi(false);
+        return;
       }
-    } else {
-      // This case means: user is logged in, auth is not loading, but no mfiParam is present in the URL.
-      setError("No MFI selected for KYC. Please go back to the application page and select an MFI to proceed.");
+      
+      const mfiList: MfiInstitution[] = JSON.parse(mfiListString);
+      const foundMfi = mfiList.find(item => item.name === decodedMfiName);
+
+      if (foundMfi) {
+        setMfi(foundMfi);
+      } else {
+        setError(`MFI details for "${decodedMfiName}" not found in the provided list. Please return to the MFI list and try again.`);
+      }
+    } catch (e) {
+      console.error("Error processing MFI details for KYC:", e);
+      let message = "Could not load MFI details due to an unexpected error.";
+      if (e instanceof SyntaxError) {
+        message = "Could not load MFI details because the stored data is corrupted.";
+      } else if (e instanceof Error && e.message.includes("decodeURIComponent")) {
+         message = "Invalid MFI identifier in URL. It might be corrupted or improperly encoded.";
+      }
+      setError(`${message} Please go back and try again.`);
     }
-  }, [searchParams, authLoading, user]); // Dependencies for MFI data processing
+    setIsLoadingMfi(false);
+  }, [searchParams, authLoading, user]);
 
   const handleDocumentSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -93,7 +104,6 @@ export default function KycUploadPage() {
       return;
     }
 
-    // Simulate document submission
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     console.log("Simulated KYC document submission for:", mfi?.name);
@@ -110,7 +120,7 @@ export default function KycUploadPage() {
     });
   };
 
-  if (authLoading) {
+  if (authLoading || (!user && !authLoading)) { // Show loader if auth is pending or if redirecting
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
         <Loader2 className="h-12 w-12 animate-spin text-accent" />
@@ -118,8 +128,17 @@ export default function KycUploadPage() {
       </div>
     );
   }
+  
+  if (isLoadingMfi && user) { // Show loader if user is present but MFI data is still loading
+    return (
+      <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
+        <Loader2 className="h-12 w-12 animate-spin text-accent" />
+        <p className="ml-4 text-lg text-teal-700">Loading MFI details for KYC...</p>
+      </div>
+    );
+  }
 
-  if (error) {
+  if (error && user) { // Show error if user is present but there was an error loading MFI
     return (
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] text-center">
         <AlertTriangle className="h-16 w-16 text-destructive mb-4" />
@@ -131,22 +150,13 @@ export default function KycUploadPage() {
       </div>
     );
   }
-
-  if (!mfi && user && !error) { 
-    return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
-        <Loader2 className="h-12 w-12 animate-spin text-accent" />
-        <p className="ml-4 text-lg text-teal-700">Loading MFI details for KYC...</p>
-      </div>
-    );
-  }
   
-  if (!user || !mfi) {
+  if (!user || !mfi) { // Fallback, should mostly be caught by above conditions
      return ( 
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] text-center">
         <AlertTriangle className="h-16 w-16 text-muted-foreground mb-4" />
         <CardTitle className="text-2xl mb-2 text-teal-700">Information Unavailable</CardTitle>
-        <CardDescription className="mb-4">MFI details could not be loaded or access is denied. Please ensure you are logged in and have selected an MFI.</CardDescription>
+        <CardDescription className="mb-4">MFI details could not be loaded or access is denied. Please ensure you are logged in and have selected an MFI from the list.</CardDescription>
         <Button asChild variant="outline">
             <Link href={user ? "/apply" : "/login"}><ArrowLeft className="mr-2 h-4 w-4" />
                 {user ? "Back to MFI List" : "Go to Login"}
@@ -155,7 +165,6 @@ export default function KycUploadPage() {
       </div>
     );
   }
-
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -280,4 +289,3 @@ const InfoItem = ({ icon, label, value, isContact = false, isLink = false }: Inf
     </div>
   </div>
 );
-

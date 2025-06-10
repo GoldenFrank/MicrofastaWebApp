@@ -6,49 +6,64 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Input } from "@/components/ui/input"; // Keep for other uses if any, or remove if truly unused.
-import { Label } from "@/components/ui/label"; // Keep for other uses if any, or remove if truly unused.
 import { ArrowLeft, Building, CheckSquare, Clock, FileText, Info, Percent, Phone, ShieldCheck, AlertTriangle, Loader2, Globe, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import type { MfiInstitution } from '@/ai/flows/mfi-matching';
-import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+
+const LOCAL_STORAGE_MFI_LIST_KEY = 'mfiListFromApplyPage';
 
 export default function MfiDetailsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { toast } = useToast(); // Keep toast if other parts of the page might use it.
   const [mfi, setMfi] = useState<MfiInstitution | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
-    const mfiParam = searchParams.get('mfi');
-    if (mfiParam) {
-      let decodedMfiParam: string;
-      try {
-        decodedMfiParam = decodeURIComponent(mfiParam);
-      } catch (uriError) {
-        console.error("Failed to decode MFI parameter:", uriError);
-        setError("Invalid MFI data in URL. It might be corrupted or improperly encoded. Please go back and try again.");
-        return; 
+    setIsLoading(true);
+    const mfiNameParam = searchParams.get('mfiName');
+
+    if (!mfiNameParam) {
+      setError("MFI identifier missing from URL. Please go back and select an MFI from the list.");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const decodedMfiName = decodeURIComponent(mfiNameParam);
+      const mfiListString = localStorage.getItem(LOCAL_STORAGE_MFI_LIST_KEY);
+
+      if (!mfiListString) {
+        setError("MFI data not found. Please navigate from the MFI comparison page again.");
+        setIsLoading(false);
+        return;
       }
 
-      try {
-        const parsedMfi = JSON.parse(decodedMfiParam);
-        if (parsedMfi && parsedMfi.name && parsedMfi.contactInformation) {
-          setMfi(parsedMfi);
-        } else {
-          setError("Invalid MFI data structure received. Please ensure all required fields are present and try selecting an MFI again.");
-        }
-      } catch (jsonError) {
-        console.error("Failed to parse MFI JSON data:", jsonError);
-        setError("Could not load MFI details due to a parsing error. Please go back and try again.");
+      const mfiList: MfiInstitution[] = JSON.parse(mfiListString);
+      const foundMfi = mfiList.find(item => item.name === decodedMfiName);
+
+      if (foundMfi) {
+        setMfi(foundMfi);
+      } else {
+        setError(`MFI details for "${decodedMfiName}" not found. Please return to the MFI list and try again.`);
       }
-    } else {
-      setError("No MFI selected. Please go back and select an MFI.");
+    } catch (e) {
+      console.error("Error processing MFI details:", e);
+      setError("Could not load MFI details due to an unexpected error. Please go back and try again.");
     }
+    setIsLoading(false);
   }, [searchParams]);
 
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
+        <Loader2 className="h-12 w-12 animate-spin text-accent" />
+        <p className="ml-4 text-lg text-teal-700">Loading MFI details...</p>
+      </div>
+    );
+  }
 
   if (error) {
     return (
@@ -62,29 +77,19 @@ export default function MfiDetailsPage() {
       </div>
     );
   }
-
-  if (!mfi && !error) {
-    return (
-      <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
-        <Loader2 className="h-12 w-12 animate-spin text-accent" />
-        <p className="ml-4 text-lg text-teal-700">Loading MFI details...</p>
-      </div>
-    );
-  }
   
-  if (!mfi) {
+  if (!mfi) { // Should be covered by isLoading or error, but as a fallback
     return (
          <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] text-center">
             <AlertTriangle className="h-16 w-16 text-muted-foreground mb-4" />
             <CardTitle className="text-2xl mb-2 text-teal-700">MFI Not Loaded</CardTitle>
-            <CardDescription className="mb-4">MFI details could not be loaded. Please try again.</CardDescription>
+            <CardDescription className="mb-4">MFI details could not be loaded. This can happen if you navigated here directly. Please start from the MFI comparison page.</CardDescription>
             <Button asChild variant="outline">
               <Link href="/apply"><ArrowLeft className="mr-2 h-4 w-4" />Back to Application</Link>
             </Button>
         </div>
     );
   }
-
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -107,7 +112,7 @@ export default function MfiDetailsPage() {
             <ShieldCheck className="h-4 w-4 text-accent" />
             <AlertTitle>MFI Details: {mfi.name}</AlertTitle>
             <AlertDescription>
-              Review the requirements and contact information for <strong>{mfi.name}</strong> below. To submit KYC documents, use the 'Proceed' option from the MFI comparison list.
+              Review the requirements and contact information for <strong>{mfi.name}</strong>. To submit KYC documents, select &quot;Apply (KYC)&quot; for this MFI from the comparison list on the previous page.
             </AlertDescription>
           </Alert>
 
@@ -170,4 +175,3 @@ const InfoItem = ({ icon, label, value, isContact = false, isLink = false }: Inf
     </div>
   </div>
 );
-
