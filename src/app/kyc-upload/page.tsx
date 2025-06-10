@@ -13,7 +13,7 @@ import Link from 'next/link';
 import type { MfiInstitution } from '@/ai/flows/mfi-matching';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/context/AuthContext';
-import { cn } from '@/lib/utils'; // Added missing import
+import { cn } from '@/lib/utils';
 
 export default function KycUploadPage() {
   const router = useRouter();
@@ -44,7 +44,6 @@ export default function KycUploadPage() {
     // It should only run after authentication is resolved and a user exists.
     if (authLoading || !user) {
       // If still loading auth or no user, don't process mfiParam yet.
-      // The first useEffect handles redirection if necessary.
       return;
     }
 
@@ -66,10 +65,11 @@ export default function KycUploadPage() {
           setMfi(parsedMfi);
         } else {
           setError("Invalid MFI data structure received (KYC Page). Please ensure all required fields are present and try selecting an MFI again.");
+          console.error("Parsed MFI data missing required fields (KYC Page):", parsedMfi, "Decoded mfiParam was:", decodedMfiParam);
         }
       } catch (jsonError) {
-        console.error("Failed to parse MFI JSON data (KYC Page):", jsonError, "Decoded mfiParam was:", decodedMfiParam);
         setError("Could not load MFI details due to a parsing error (KYC Page). Please go back and try again.");
+        console.error("Failed to parse MFI JSON data (KYC Page):", jsonError, "Decoded mfiParam was:", decodedMfiParam);
       }
     } else {
       // This case means: user is logged in, auth is not loading, but no mfiParam is present in the URL.
@@ -93,6 +93,7 @@ export default function KycUploadPage() {
       return;
     }
 
+    // Simulate document submission
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     console.log("Simulated KYC document submission for:", mfi?.name);
@@ -131,10 +132,7 @@ export default function KycUploadPage() {
     );
   }
 
-  // This check is important after error and authLoading checks.
-  // If user is authenticated but mfi data couldn't be loaded (e.g. due to previous error or no mfiParam),
-  // this will show a loading state until an error is set or MFI data is available.
-  if (!mfi && user) { // Only show this specific loader if user is present but mfi is not (and no error yet)
+  if (!mfi && user && !error) { 
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
         <Loader2 className="h-12 w-12 animate-spin text-accent" />
@@ -143,11 +141,8 @@ export default function KycUploadPage() {
     );
   }
   
-  // If no user (implies redirect is happening or auth failed, which should be caught by first useEffect)
-  // or if !mfi and also no error (which should have been set if mfiParam was missing or bad),
-  // this is a fallback, but the above checks should handle most states.
   if (!user || !mfi) {
-     return ( // Fallback for unexpected state, though specific error/loading above should cover.
+     return ( 
       <div className="flex flex-col items-center justify-center min-h-[calc(100vh-200px)] text-center">
         <AlertTriangle className="h-16 w-16 text-muted-foreground mb-4" />
         <CardTitle className="text-2xl mb-2 text-teal-700">Information Unavailable</CardTitle>
@@ -188,12 +183,12 @@ export default function KycUploadPage() {
           </Alert>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm pt-4">
-            <InfoItem icon={<Percent className="text-accent" />} label="Interest Rate" value={`${mfi.interestRate}%`} />
-            <InfoItem icon={<Clock className="text-accent" />} label="Processing Time" value={mfi.processingTime} />
-            <InfoItem icon={<Phone className="text-accent" />} label="Contact Information" value={mfi.contactInformation} isContact />
-            <InfoItem icon={<Info className="text-accent" />} label="Approval Rate" value={`${(mfi.approvalRate * 100).toFixed(0)}%`} />
-            {mfi.websiteUrl && <InfoItem icon={<Globe className="text-accent"/>} label="Website" value={mfi.websiteUrl} isLink />}
-            {mfi.applicationUrl && <InfoItem icon={<ExternalLink className="text-accent"/>} label="Apply Online" value={mfi.applicationUrl} isLink />}
+            <InfoItem icon={<Percent />} label="Interest Rate" value={`${mfi.interestRate}%`} />
+            <InfoItem icon={<Clock />} label="Processing Time" value={mfi.processingTime} />
+            <InfoItem icon={<Phone />} label="Contact Information" value={mfi.contactInformation} isContact />
+            <InfoItem icon={<Info />} label="Approval Rate" value={`${(mfi.approvalRate * 100).toFixed(0)}%`} />
+            {mfi.websiteUrl && <InfoItem icon={<Globe />} label="Website" value={mfi.websiteUrl} isLink />}
+            {mfi.applicationUrl && <InfoItem icon={<ExternalLink />} label="Apply Online" value={mfi.applicationUrl} isLink />}
           </div>
           
           <div>
@@ -267,7 +262,6 @@ interface InfoItemProps {
 }
 const InfoItem = ({ icon, label, value, isContact = false, isLink = false }: InfoItemProps) => (
   <div className="flex items-start p-3 bg-muted/30 rounded-md">
-     {/* Ensure icon has text-accent applied if not already done by parent */}
     <span className="mr-3 pt-1">{React.isValidElement(icon) ? React.cloneElement(icon, { className: cn((icon.props as any).className, "w-5 h-5 text-accent") }) : icon}</span>
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
@@ -286,8 +280,3 @@ const InfoItem = ({ icon, label, value, isContact = false, isLink = false }: Inf
     </div>
   </div>
 );
-
-
-    
-
-    
