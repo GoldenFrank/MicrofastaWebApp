@@ -280,3 +280,4 @@ const InfoItem = ({ icon, label, value, isContact = false, isLink = false }: Inf
     </div>
   </div>
 );
+
