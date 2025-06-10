@@ -69,7 +69,7 @@ export default function ApplyPage() {
           logbookDetails: data.logbookDetails,
           nationalId: data.nationalId,
           loanAmount: data.loanAmount, // Use originally requested amount for matching
-          creditScore: data.creditScore ?? 0,
+          creditScore: 0, // Default credit score to 0 as it's removed from form
           employmentStatus: data.employmentStatus,
           location: data.location,
         };

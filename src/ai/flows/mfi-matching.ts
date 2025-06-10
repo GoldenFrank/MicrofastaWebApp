@@ -21,7 +21,7 @@ const MfiMatchingInputSchema = z.object({
     .describe('Details of the logbook being used as collateral.'),
   nationalId: z.string().describe('National ID number of the loan applicant.'),
   loanAmount: z.number().describe('The amount of loan requested by the applicant.'),
-  creditScore: z.number().describe('The credit score of the loan applicant, if available.'),
+  creditScore: z.number().optional().describe('The credit score of the loan applicant, if available (0-1000). Defaults to 0 if not provided.'),
   employmentStatus: z.string().describe('Employment status of the loan applicant.'),
   location: z.string().describe('The location of the loan applicant.'),
 });
@@ -57,7 +57,7 @@ const prompt = ai.definePrompt({
   },
   prompt: `You are an expert financial advisor specializing in logbook loans in Kenya. Based on the loan application details, identify the 5 most suitable Kenyan MFI institutions.
 
-Consider factors such as loan amount, applicant's logbook details, credit score, employment status, and location, as well as the MFI's interest rates, processing times, requirements, website URLs, and application URLs. Use the example MFIs below as a guide for the kind of information and format to return. Do NOT limit your suggestions to only these examples; find real and applicable MFIs based on the applicant's profile.
+Consider factors such as loan amount, applicant's logbook details, credit score (assume 0 or low if not explicitly high), employment status, and location, as well as the MFI's interest rates, processing times, requirements, website URLs, and application URLs. Use the example MFIs below as a guide for the kind of information and format to return. Do NOT limit your suggestions to only these examples; find real and applicable MFIs based on the applicant's profile.
 
 Example Kenyan MFIs:
 \`\`\`

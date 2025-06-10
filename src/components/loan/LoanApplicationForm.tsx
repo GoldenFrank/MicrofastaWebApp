@@ -29,7 +29,6 @@ export const loanApplicationFormSchema = z.object({
   mpesaStatement: typeof window !== 'undefined' 
     ? z.instanceof(FileList).refine(files => files?.length === 1, "12-month Mpesa statement is required.") 
     : z.any().refine(value => value !== null && value !== undefined, "12-month Mpesa statement is required."),
-  creditScore: z.coerce.number().min(0).max(1000).optional().describe("Optional: 0-1000"),
   employmentStatus: z.enum(["Employed", "Self-Employed", "Unemployed"], { required_error: "Employment status is required." }),
   location: z.string().min(2, "Location (Town/City) is required."),
 });
@@ -51,7 +50,6 @@ export default function LoanApplicationForm({ onSubmit, isSubmitting, submitButt
       loanAmount: 10000,
       monthlyIncome: undefined, 
       mpesaStatement: undefined,
-      creditScore: undefined,
       employmentStatus: undefined,
       location: "",
     },
@@ -159,23 +157,6 @@ export default function LoanApplicationForm({ onSubmit, isSubmitting, submitButt
               )}
             />
             
-            <FormField
-              control={form.control}
-              name="creditScore"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Credit Score (Optional)</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="e.g., 650" {...field} value={field.value ?? ""} />
-                  </FormControl>
-                  <FormDescription>
-                    If known, your credit score (typically 0-1000). Used in MFI matching.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <FormField
               control={form.control}
               name="employmentStatus"
