@@ -11,7 +11,8 @@ import {
   createUserWithEmailAndPassword, 
   signOut as firebaseSignOut,
   updateProfile,
-  sendEmailVerification
+  sendEmailVerification,
+  type ActionCodeSettings // Import ActionCodeSettings
 } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 
@@ -61,19 +62,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const protectedPaths = ['/dashboard', '/apply', '/kyc-upload'];
+    // Check if the current path starts with any of the protected paths
     const isProtectedPath = protectedPaths.some(p => pathname.startsWith(p));
-
+  
     if (!loading && !user && isProtectedPath) {
-      const redirectPath = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
-      router.push(`/login?redirect=${encodeURIComponent(redirectPath)}`);
+      // Construct the redirect query parameter more safely
+      const redirectQuery = searchParams.toString();
+      const fullRedirectPath = pathname + (redirectQuery ? `?${redirectQuery}` : '');
+      router.push(`/login?redirect=${encodeURIComponent(fullRedirectPath)}`);
     }
   }, [user, loading, pathname, router, searchParams]);
+  
 
   const handleAuthSuccess = () => {
     const redirectUrl = searchParams.get('redirect');
     if (redirectUrl) {
       try {
-        router.push(decodeURIComponent(redirectUrl));
+        const decodedRedirectUrl = decodeURIComponent(redirectUrl);
+        router.push(decodedRedirectUrl);
       } catch (decodeError) {
         console.error("Error decoding redirect URL, navigating to dashboard:", decodeError);
         router.push('/dashboard');
@@ -87,6 +93,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, pass);
+      // onAuthStateChanged will handle setting user and loading states, then redirection
       handleAuthSuccess();
     } catch (error: any) {
       console.error("Login failed:", error);
@@ -109,11 +116,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         await updateProfile(userCredential.user, {
           displayName: fullName,
         });
-        await sendEmailVerification(userCredential.user);
+
+        const actionCodeSettings: ActionCodeSettings = {
+          url: `${window.location.origin}/login?emailVerified=true&email=${encodeURIComponent(email)}`, // Added email to prefill on login
+          handleCodeInApp: false, 
+        };
+        
+        await sendEmailVerification(userCredential.user, actionCodeSettings);
+        
         toast({
           title: "Account Created",
-          description: `Welcome, ${fullName}! A verification email has been sent to ${email}. Please verify your email.`,
-          duration: 7000,
+          description: `Welcome, ${fullName}! A verification email has been sent to ${email}. Please check your inbox and click the link to verify your email.`,
+          duration: 9000, // Increased duration
         });
          // Update local user state immediately after profile update
         setUser({
@@ -123,7 +137,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             emailVerified: userCredential.user.emailVerified
         });
       }
-      handleAuthSuccess();
+      handleAuthSuccess(); // Redirect after signup logic
     } catch (error: any) {
       console.error("Signup failed:", error);
       toast({
@@ -141,6 +155,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true); 
     try {
       await firebaseSignOut(auth);
+      setUser(null); // Explicitly set user to null
       router.push('/login'); 
     } catch (error: any) {
       console.error("Logout failed:", error);
@@ -168,3 +183,4 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+
