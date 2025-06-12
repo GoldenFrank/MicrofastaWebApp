@@ -7,8 +7,10 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { PlusCircle, Loader2, AlertTriangle } from 'lucide-react';
+import { PlusCircle, Loader2, AlertTriangle, MailWarning, CheckCircle } from 'lucide-react';
 import Image from 'next/image';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
 
 // Mock data for demonstration
 const mockLoans: LoanApplication[] = [
@@ -155,6 +157,16 @@ export default function DashboardPage() {
           </Link>
         </Button>
       </div>
+      
+      {user && !user.emailVerified && (
+        <Alert variant="default" className="border-yellow-500 bg-yellow-50/50">
+          <MailWarning className="h-5 w-5 text-yellow-600" />
+          <AlertTitle className="text-yellow-700">Verify Your Email Address</AlertTitle>
+          <AlertDescription className="text-yellow-600">
+            A verification email has been sent to <strong>{user.email}</strong>. Please check your inbox (and spam folder) and click the link to fully activate your account.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <p className="text-lg text-foreground/80">
         Here&apos;s an overview of your loan applications. Track their progress and manage your finances effectively.

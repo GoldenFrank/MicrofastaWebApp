@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { User as FirebaseUser } from 'firebase/auth'; // Changed back
+import type { User as FirebaseUser } from 'firebase/auth';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { auth } from '@/lib/firebase'; // Import Firebase auth instance
@@ -9,22 +9,24 @@ import {
   onAuthStateChanged, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
-  signOut as firebaseSignOut 
-} from 'firebase/auth'; // Changed back
+  signOut as firebaseSignOut,
+  updateProfile,
+  sendEmailVerification
+} from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 
 interface AppUser {
   uid: string;
   email: string | null;
   displayName?: string | null;
-  // Add any other user properties you need
+  emailVerified?: boolean;
 }
 
 interface AuthContextType {
   user: AppUser | null;
   loading: boolean;
   login: (email: string, pass: string) => Promise<void>;
-  signup: (email: string, pass: string) => Promise<void>;
+  signup: (email: string, pass: string, fullName: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -45,6 +47,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           uid: firebaseUser.uid,
           email: firebaseUser.email,
           displayName: firebaseUser.displayName,
+          emailVerified: firebaseUser.emailVerified,
         };
         setUser(appUser);
       } else {
@@ -84,7 +87,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, pass);
-      // onAuthStateChanged will handle setting user and loading states, then redirection
       handleAuthSuccess();
     } catch (error: any) {
       console.error("Login failed:", error);
@@ -99,11 +101,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signup = async (email: string, pass: string) => {
+  const signup = async (email: string, pass: string, fullName: string) => {
     setLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, email, pass);
-      // onAuthStateChanged will handle setting user and loading states, then redirection
+      const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+      if (userCredential.user) {
+        await updateProfile(userCredential.user, {
+          displayName: fullName,
+        });
+        await sendEmailVerification(userCredential.user);
+        toast({
+          title: "Account Created",
+          description: `Welcome, ${fullName}! A verification email has been sent to ${email}. Please verify your email.`,
+          duration: 7000,
+        });
+         // Update local user state immediately after profile update
+        setUser({
+            uid: userCredential.user.uid,
+            email: userCredential.user.email,
+            displayName: fullName,
+            emailVerified: userCredential.user.emailVerified
+        });
+      }
       handleAuthSuccess();
     } catch (error: any) {
       console.error("Signup failed:", error);
@@ -122,7 +141,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true); 
     try {
       await firebaseSignOut(auth);
-      // User will be set to null by onAuthStateChanged, loading also handled
       router.push('/login'); 
     } catch (error: any) {
       console.error("Logout failed:", error);

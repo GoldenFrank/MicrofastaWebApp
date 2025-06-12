@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -19,9 +20,16 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
 
-const formSchema = z.object({
+const baseSchema = {
   email: z.string().email({ message: "Invalid email address." }),
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+};
+
+const loginSchema = z.object(baseSchema);
+
+const signupSchema = z.object({
+  ...baseSchema,
+  fullName: z.string().min(3, { message: "Full name must be at least 3 characters." }).max(50, { message: "Full name cannot exceed 50 characters."}),
 });
 
 type AuthFormProps = {
@@ -32,20 +40,25 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const { login, signup, loading } = useAuth();
   const router = useRouter();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const currentSchema = mode === 'login' ? loginSchema : signupSchema;
+
+  const form = useForm<z.infer<typeof currentSchema>>({
+    resolver: zodResolver(currentSchema),
     defaultValues: {
       email: "",
       password: "",
+      ...(mode === 'signup' && { fullName: "" }),
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof currentSchema>) {
     try {
       if (mode === 'login') {
         await login(values.email, values.password);
-      } else {
-        await signup(values.email, values.password);
+      } else if (mode === 'signup') {
+        // Type assertion to access fullName safely
+        const signupValues = values as z.infer<typeof signupSchema>;
+        await signup(signupValues.email, signupValues.password, signupValues.fullName);
       }
       // Redirect is handled by AuthContext or can be forced here if needed
     } catch (error) {
@@ -68,6 +81,21 @@ export default function AuthForm({ mode }: AuthFormProps) {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              {mode === 'signup' && (
+                <FormField
+                  control={form.control}
+                  name="fullName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Jane Doe" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               <FormField
                 control={form.control}
                 name="email"

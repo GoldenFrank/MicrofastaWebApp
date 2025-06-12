@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -5,7 +6,7 @@ import AppLogo from './AppLogo';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, LogOut, UserPlus, LogIn, LayoutDashboard, FileText } from 'lucide-react';
+import { Menu, LogOut, UserPlus, LogIn, LayoutDashboard, FileText, UserCircle } from 'lucide-react';
 
 export default function Header() {
   const { user, logout, loading } = useAuth();
@@ -19,9 +20,17 @@ export default function Header() {
   ];
 
   const authActions = user ? (
-    <Button variant="ghost" onClick={logout} disabled={loading}>
-      <LogOut className="mr-2 h-4 w-4" /> Logout
-    </Button>
+    <>
+      {user.displayName && (
+        <span className="text-sm text-foreground hidden md:flex items-center">
+          <UserCircle className="mr-2 h-5 w-5 text-accent" />
+          {user.displayName}
+        </span>
+      )}
+      <Button variant="ghost" onClick={logout} disabled={loading}>
+        <LogOut className="mr-2 h-4 w-4" /> Logout
+      </Button>
+    </>
   ) : (
     <>
       <Button variant="ghost" asChild>
@@ -55,6 +64,12 @@ export default function Header() {
             <SheetContent side="right">
               <nav className="flex flex-col space-y-4 mt-8">
                  <AppLogo />
+                 {user?.displayName && (
+                    <div className="px-2 py-1 text-sm text-foreground flex items-center">
+                      <UserCircle className="mr-2 h-5 w-5 text-accent" />
+                      {user.displayName}
+                    </div>
+                  )}
                 {navLinks.map((link) => (
                   <Button key={link.href} variant="ghost" asChild className="justify-start">
                     <Link href={link.href}>{link.icon}{link.label}</Link>

@@ -9,13 +9,12 @@ import { getAuth } from "firebase/auth"; // Changed back from "@firebase/auth"
 // import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
-  measurementId: "YOUR_MEASUREMENT_ID" // Optional
+  apiKey: "AIzaSyAX4sVZuMuPvXqUiOvRbpH5dIpCq8MxB6A",
+  authDomain: "logbook-loan-compass.firebaseapp.com",
+  projectId: "logbook-loan-compass",
+  storageBucket: "logbook-loan-compass.firebasestorage.app",
+  messagingSenderId: "758673212870",
+  appId: "1:758673212870:web:da5e4e85dd052800239ec7"
 };
 
 // Initialize Firebase
