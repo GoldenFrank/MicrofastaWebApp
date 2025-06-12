@@ -46,42 +46,85 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   useEffect(() => {
-    if (!loading && !user && (pathname === '/dashboard' || pathname === '/apply')) {
-      router.push('/login');
+    if (!loading && !user && (pathname === '/dashboard' || pathname.startsWith('/dashboard/loan/') || pathname === '/apply' || pathname === '/kyc-upload')) {
+      // Capture the full current path including query parameters for redirect
+      const redirectPath = pathname + window.location.search;
+      router.push(`/login?redirect=${encodeURIComponent(redirectPath)}`);
     }
   }, [user, loading, pathname, router]);
 
 
   const login = async (email: string, _pass: string) => {
-    // Mock login
     setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
-    const mockUser: AppUser = { uid: 'mock-uid-' + Date.now(), email };
-    setUser(mockUser);
-    localStorage.setItem('authUser', JSON.stringify(mockUser));
-    setLoading(false);
-    router.push('/dashboard');
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
+      const mockUser: AppUser = { uid: 'mock-uid-' + Date.now(), email };
+      setUser(mockUser);
+      localStorage.setItem('authUser', JSON.stringify(mockUser));
+      
+      const params = new URLSearchParams(window.location.search);
+      const redirectUrl = params.get('redirect');
+      if (redirectUrl) {
+        try {
+            router.push(decodeURIComponent(redirectUrl));
+        } catch (decodeError) {
+            console.error("Error decoding redirect URL, navigating to dashboard:", decodeError);
+            router.push('/dashboard');
+        }
+      } else {
+        router.push('/dashboard');
+      }
+    } catch (error) {
+      // This catch is for errors from localStorage.setItem or other synchronous errors
+      console.error("Login process failed:", error);
+      throw error; // Re-throw to be caught by AuthForm
+    } finally {
+      setLoading(false);
+    }
   };
 
   const signup = async (email: string, _pass: string) => {
-    // Mock signup
     setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
-    const mockUser: AppUser = { uid: 'mock-uid-' + Date.now(), email };
-    setUser(mockUser);
-    localStorage.setItem('authUser', JSON.stringify(mockUser));
-    setLoading(false);
-    router.push('/dashboard');
+    try {
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
+      const mockUser: AppUser = { uid: 'mock-uid-' + Date.now(), email };
+      setUser(mockUser);
+      localStorage.setItem('authUser', JSON.stringify(mockUser));
+
+      const params = new URLSearchParams(window.location.search);
+      const redirectUrl = params.get('redirect');
+      if (redirectUrl) {
+        try {
+            router.push(decodeURIComponent(redirectUrl));
+        } catch (decodeError) {
+            console.error("Error decoding redirect URL, navigating to dashboard:", decodeError);
+            router.push('/dashboard');
+        }
+      } else {
+        router.push('/dashboard');
+      }
+    } catch (error) {
+      // This catch is for errors from localStorage.setItem or other synchronous errors
+      console.error("Signup process failed:", error);
+      throw error; // Re-throw to be caught by AuthForm
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = async () => {
-    // Mock logout
     setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 200)); // Simulate API call
-    setUser(null);
-    localStorage.removeItem('authUser');
-    setLoading(false);
-    router.push('/login');
+    try {
+        await new Promise(resolve => setTimeout(resolve, 200)); // Simulate API call
+        setUser(null);
+        localStorage.removeItem('authUser');
+        router.push('/login');
+    } catch (error) {
+        console.error("Logout failed:", error);
+        // Potentially surface this error if needed, though logout is usually simple
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (
