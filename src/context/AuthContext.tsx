@@ -1,23 +1,31 @@
 
 "use client";
 
-import type { User } from 'firebase/auth'; // Assuming Firebase Auth, adjust if different
+import type { User as FirebaseUser } from 'firebase/auth';
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { auth } from '@/lib/firebase'; // Import Firebase auth instance
+import { 
+  onAuthStateChanged, 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut as firebaseSignOut 
+} from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
 
-// Mock user type, replace with your actual user type
 interface AppUser {
   uid: string;
   email: string | null;
   displayName?: string | null;
+  // Add any other user properties you need
 }
 
 interface AuthContextType {
   user: AppUser | null;
   loading: boolean;
-  login: (email: string, pass: string) => Promise<void>; // Make async for real API calls
-  signup: (email: string, pass: string) => Promise<void>; // Make async
-  logout: () => Promise<void>; // Make async
+  login: (email: string, pass: string) => Promise<void>;
+  signup: (email: string, pass: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,103 +35,105 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { toast } = useToast();
 
   useEffect(() => {
-    // Mock authentication check (e.g., from localStorage or an API)
-    const checkUser = () => {
-      try {
-        const storedUser = localStorage.getItem('authUser');
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
-        }
-      } catch (error) {
-        console.error("Failed to parse stored user:", error);
-        localStorage.removeItem('authUser');
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
+      if (firebaseUser) {
+        const appUser: AppUser = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email,
+          displayName: firebaseUser.displayName,
+        };
+        setUser(appUser);
+      } else {
+        setUser(null);
       }
       setLoading(false);
-    };
-    checkUser();
+    });
+
+    return () => unsubscribe(); // Cleanup subscription on unmount
   }, []);
 
   useEffect(() => {
-    if (!loading && !user && (pathname === '/dashboard' || pathname.startsWith('/dashboard/loan/') || pathname === '/apply' || pathname === '/kyc-upload')) {
-      // Capture the full current path including query parameters for redirect
-      const redirectPath = pathname + window.location.search;
+    const protectedPaths = ['/dashboard', '/apply', '/kyc-upload'];
+    const isProtectedPath = protectedPaths.some(p => pathname.startsWith(p));
+
+    if (!loading && !user && isProtectedPath) {
+      const redirectPath = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : '');
       router.push(`/login?redirect=${encodeURIComponent(redirectPath)}`);
     }
-  }, [user, loading, pathname, router]);
+  }, [user, loading, pathname, router, searchParams]);
 
-
-  const login = async (email: string, _pass: string) => {
-    setLoading(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
-      const mockUser: AppUser = { uid: 'mock-uid-' + Date.now(), email };
-      setUser(mockUser);
-      localStorage.setItem('authUser', JSON.stringify(mockUser));
-      
-      const params = new URLSearchParams(window.location.search);
-      const redirectUrl = params.get('redirect');
-      if (redirectUrl) {
-        try {
-            router.push(decodeURIComponent(redirectUrl));
-        } catch (decodeError) {
-            console.error("Error decoding redirect URL, navigating to dashboard:", decodeError);
-            router.push('/dashboard');
-        }
-      } else {
+  const handleAuthSuccess = () => {
+    const redirectUrl = searchParams.get('redirect');
+    if (redirectUrl) {
+      try {
+        router.push(decodeURIComponent(redirectUrl));
+      } catch (decodeError) {
+        console.error("Error decoding redirect URL, navigating to dashboard:", decodeError);
         router.push('/dashboard');
       }
-    } catch (error) {
-      // This catch is for errors from localStorage.setItem or other synchronous errors
-      console.error("Login process failed:", error);
-      throw error; // Re-throw to be caught by AuthForm
-    } finally {
-      setLoading(false);
+    } else {
+      router.push('/dashboard');
     }
   };
 
-  const signup = async (email: string, _pass: string) => {
+  const login = async (email: string, pass: string) => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API call
-      const mockUser: AppUser = { uid: 'mock-uid-' + Date.now(), email };
-      setUser(mockUser);
-      localStorage.setItem('authUser', JSON.stringify(mockUser));
-
-      const params = new URLSearchParams(window.location.search);
-      const redirectUrl = params.get('redirect');
-      if (redirectUrl) {
-        try {
-            router.push(decodeURIComponent(redirectUrl));
-        } catch (decodeError) {
-            console.error("Error decoding redirect URL, navigating to dashboard:", decodeError);
-            router.push('/dashboard');
-        }
-      } else {
-        router.push('/dashboard');
-      }
-    } catch (error) {
-      // This catch is for errors from localStorage.setItem or other synchronous errors
-      console.error("Signup process failed:", error);
+      await signInWithEmailAndPassword(auth, email, pass);
+      // onAuthStateChanged will handle setting user and loading state
+      handleAuthSuccess();
+    } catch (error: any) {
+      console.error("Login failed:", error);
+      toast({
+        variant: "destructive",
+        title: "Login Failed",
+        description: error.message || "An unknown error occurred.",
+      });
       throw error; // Re-throw to be caught by AuthForm
     } finally {
-      setLoading(false);
+      // setLoading(false); // onAuthStateChanged handles this
+    }
+  };
+
+  const signup = async (email: string, pass: string) => {
+    setLoading(true);
+    try {
+      await createUserWithEmailAndPassword(auth, email, pass);
+      // onAuthStateChanged will handle setting user and loading state
+      // You might want to update the user's profile with a displayName here if needed
+      handleAuthSuccess();
+    } catch (error: any) {
+      console.error("Signup failed:", error);
+      toast({
+        variant: "destructive",
+        title: "Signup Failed",
+        description: error.message || "An unknown error occurred.",
+      });
+      throw error; // Re-throw to be caught by AuthForm
+    } finally {
+      // setLoading(false); // onAuthStateChanged handles this
     }
   };
 
   const logout = async () => {
     setLoading(true);
     try {
-        await new Promise(resolve => setTimeout(resolve, 200)); // Simulate API call
-        setUser(null);
-        localStorage.removeItem('authUser');
-        router.push('/login');
-    } catch (error) {
-        console.error("Logout failed:", error);
-        // Potentially surface this error if needed, though logout is usually simple
+      await firebaseSignOut(auth);
+      // onAuthStateChanged will set user to null
+      router.push('/login');
+    } catch (error: any) {
+      console.error("Logout failed:", error);
+      toast({
+        variant: "destructive",
+        title: "Logout Failed",
+        description: error.message || "An unknown error occurred.",
+      });
     } finally {
-        setLoading(false);
+      // setLoading(false); // onAuthStateChanged handles this
     }
   };
 
