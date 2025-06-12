@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { User as FirebaseUser } from 'firebase/auth';
+import type { User as FirebaseUser } from 'firebase/auth'; // Changed back
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { auth } from '@/lib/firebase'; // Import Firebase auth instance
@@ -10,7 +10,7 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signOut as firebaseSignOut 
-} from 'firebase/auth';
+} from 'firebase/auth'; // Changed back
 import { useToast } from '@/hooks/use-toast';
 
 interface AppUser {
@@ -84,6 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, pass);
+      // onAuthStateChanged will handle setting user and loading states, then redirection
       handleAuthSuccess();
     } catch (error: any) {
       console.error("Login failed:", error);
@@ -94,7 +95,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       throw error; 
     } finally {
-      // setLoading(false); // onAuthStateChanged handles this better
+      setLoading(false);
     }
   };
 
@@ -102,6 +103,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       await createUserWithEmailAndPassword(auth, email, pass);
+      // onAuthStateChanged will handle setting user and loading states, then redirection
       handleAuthSuccess();
     } catch (error: any) {
       console.error("Signup failed:", error);
@@ -112,15 +114,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       throw error;
     } finally {
-      // setLoading(false); // onAuthStateChanged handles this better
+     setLoading(false);
     }
   };
 
   const logout = async () => {
-    setLoading(true);
+    setLoading(true); 
     try {
       await firebaseSignOut(auth);
-      router.push('/login');
+      // User will be set to null by onAuthStateChanged, loading also handled
+      router.push('/login'); 
     } catch (error: any) {
       console.error("Logout failed:", error);
       toast({
@@ -129,7 +132,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         description: error.message || "An unknown error occurred.",
       });
     } finally {
-      // setLoading(false); // onAuthStateChanged handles this better
+      setLoading(false);
     }
   };
 

@@ -4,7 +4,7 @@
 // Copy the firebaseConfig object and paste it here.
 
 import { initializeApp, getApp, getApps, type FirebaseApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth } from "firebase/auth"; // Changed back from "@firebase/auth"
 // import { getFirestore } from "firebase/firestore";
 // import { getStorage } from "firebase/storage";
 
