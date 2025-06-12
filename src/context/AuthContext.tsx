@@ -84,7 +84,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, pass);
-      // onAuthStateChanged will handle setting user and loading state
       handleAuthSuccess();
     } catch (error: any) {
       console.error("Login failed:", error);
@@ -93,9 +92,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         title: "Login Failed",
         description: error.message || "An unknown error occurred.",
       });
-      throw error; // Re-throw to be caught by AuthForm
+      throw error; 
     } finally {
-      // setLoading(false); // onAuthStateChanged handles this
+      // setLoading(false); // onAuthStateChanged handles this better
     }
   };
 
@@ -103,8 +102,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       await createUserWithEmailAndPassword(auth, email, pass);
-      // onAuthStateChanged will handle setting user and loading state
-      // You might want to update the user's profile with a displayName here if needed
       handleAuthSuccess();
     } catch (error: any) {
       console.error("Signup failed:", error);
@@ -113,9 +110,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         title: "Signup Failed",
         description: error.message || "An unknown error occurred.",
       });
-      throw error; // Re-throw to be caught by AuthForm
+      throw error;
     } finally {
-      // setLoading(false); // onAuthStateChanged handles this
+      // setLoading(false); // onAuthStateChanged handles this better
     }
   };
 
@@ -123,7 +120,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       await firebaseSignOut(auth);
-      // onAuthStateChanged will set user to null
       router.push('/login');
     } catch (error: any) {
       console.error("Logout failed:", error);
@@ -133,7 +129,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         description: error.message || "An unknown error occurred.",
       });
     } finally {
-      // setLoading(false); // onAuthStateChanged handles this
+      // setLoading(false); // onAuthStateChanged handles this better
     }
   };
 
