@@ -15,6 +15,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Terminal, Loader2, CheckCircle, XCircle, Info, ThumbsUp, Search } from "lucide-react";
 import { submitLoanApplicationAction, checkLoanEligibilityAction } from './actions';
 
+const SESSION_STORAGE_ELIGIBILITY_RESULT_KEY = 'eligibilityResult';
+const SESSION_STORAGE_ORIGINAL_FORM_INPUT_KEY = 'originalFormInputForMfi';
+const SESSION_STORAGE_MFI_RESULTS_KEY = 'mfiResults';
+
 export default function ApplyPage() {
   const [eligibilityResult, setEligibilityResult] = useState<EligibilityCheckOutput | null>(null);
   const [isCheckingEligibility, setIsCheckingEligibility] = useState(false);
@@ -34,12 +38,69 @@ export default function ApplyPage() {
     }
   }, [user, authLoading, router]);
 
+  useEffect(() => {
+    // Load state from sessionStorage on mount
+    if (typeof window !== 'undefined') {
+      try {
+        const storedEligibilityResult = sessionStorage.getItem(SESSION_STORAGE_ELIGIBILITY_RESULT_KEY);
+        if (storedEligibilityResult) {
+          setEligibilityResult(JSON.parse(storedEligibilityResult));
+        }
+        const storedOriginalFormInput = sessionStorage.getItem(SESSION_STORAGE_ORIGINAL_FORM_INPUT_KEY);
+        if (storedOriginalFormInput) {
+          setOriginalFormInputForMfi(JSON.parse(storedOriginalFormInput));
+        }
+        const storedMfiResults = sessionStorage.getItem(SESSION_STORAGE_MFI_RESULTS_KEY);
+        if (storedMfiResults) {
+          setMfiResults(JSON.parse(storedMfiResults));
+        }
+      } catch (e) {
+        console.error("Error loading state from sessionStorage:", e);
+        // Clear potentially corrupted keys
+        sessionStorage.removeItem(SESSION_STORAGE_ELIGIBILITY_RESULT_KEY);
+        sessionStorage.removeItem(SESSION_STORAGE_ORIGINAL_FORM_INPUT_KEY);
+        sessionStorage.removeItem(SESSION_STORAGE_MFI_RESULTS_KEY);
+      }
+    }
+  }, []);
+
+  const persistStateToSessionStorage = (data: {
+    eligibility?: EligibilityCheckOutput | null,
+    formInput?: MfiMatchingInput | null,
+    mfis?: MfiMatchingOutput | null
+  }) => {
+    if (typeof window !== 'undefined') {
+      try {
+        if (data.eligibility !== undefined) {
+          sessionStorage.setItem(SESSION_STORAGE_ELIGIBILITY_RESULT_KEY, JSON.stringify(data.eligibility));
+        }
+        if (data.formInput !== undefined) {
+          sessionStorage.setItem(SESSION_STORAGE_ORIGINAL_FORM_INPUT_KEY, JSON.stringify(data.formInput));
+        }
+        if (data.mfis !== undefined) {
+          sessionStorage.setItem(SESSION_STORAGE_MFI_RESULTS_KEY, JSON.stringify(data.mfis));
+        }
+      } catch (e) {
+        console.error("Error saving state to sessionStorage:", e);
+      }
+    }
+  };
+
+  const clearSessionStorageState = () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem(SESSION_STORAGE_ELIGIBILITY_RESULT_KEY);
+      sessionStorage.removeItem(SESSION_STORAGE_ORIGINAL_FORM_INPUT_KEY);
+      sessionStorage.removeItem(SESSION_STORAGE_MFI_RESULTS_KEY);
+    }
+  };
+
   const handleEligibilitySubmit = async (data: LoanApplicationFormValues) => {
     setIsCheckingEligibility(true);
     setError(null);
     setEligibilityResult(null);
     setMfiResults(null);
     setOriginalFormInputForMfi(null);
+    clearSessionStorageState(); // Clear previous state for a new submission
 
     const eligibilityAIInput: EligibilityCheckInput = {
       logbookDetails: data.logbookDetails,
@@ -59,21 +120,22 @@ export default function ApplyPage() {
       });
     } else {
       setEligibilityResult(result);
+      persistStateToSessionStorage({ eligibility: result });
       if (result.isEligible && result.eligibleAmount > 0) {
         toast({
           title: "Eligibility Checked!",
           description: `You are eligible for approximately KES ${result.eligibleAmount.toLocaleString()}.`,
         });
-        // Store all necessary data for MFI matching
         const mfiMatchingData: MfiMatchingInput = {
           logbookDetails: data.logbookDetails,
           nationalId: data.nationalId,
-          loanAmount: data.loanAmount, // Use originally requested amount for matching
-          creditScore: 0, // Default credit score to 0 as it's removed from form
+          loanAmount: data.loanAmount,
           employmentStatus: data.employmentStatus,
           location: data.location,
+          creditScore: 0,
         };
         setOriginalFormInputForMfi(mfiMatchingData);
+        persistStateToSessionStorage({ formInput: mfiMatchingData });
       } else {
         toast({
           variant: "default",
@@ -93,7 +155,7 @@ export default function ApplyPage() {
     }
     setIsSearchingMfis(true);
     setError(null);
-    setMfiResults(null);
+    setMfiResults(null); // Clear previous MFI results before new search
 
     const result = await submitLoanApplicationAction(originalFormInputForMfi);
 
@@ -104,8 +166,10 @@ export default function ApplyPage() {
         title: "MFI Search Error",
         description: result.error,
       });
+      persistStateToSessionStorage({ mfis: null }); // Persist the null/error state
     } else {
       setMfiResults(result);
+      persistStateToSessionStorage({ mfis: result });
       if (result.length > 0) {
         toast({
           title: "MFIs Found!",
@@ -122,6 +186,14 @@ export default function ApplyPage() {
     setIsSearchingMfis(false);
   };
 
+  const handleStartOver = () => {
+    setEligibilityResult(null);
+    setError(null);
+    setMfiResults(null);
+    setOriginalFormInputForMfi(null);
+    clearSessionStorageState();
+  };
+
 
   if (authLoading || (!user && !authLoading)) {
     return (
@@ -132,9 +204,21 @@ export default function ApplyPage() {
     );
   }
 
+  // Main rendering logic
+  if (!eligibilityResult && !mfiResults) { // Initial state or after "Start Over"
+     return (
+        <LoanApplicationForm 
+          onSubmit={handleEligibilitySubmit} 
+          isSubmitting={isCheckingEligibility}
+          submitButtonText="Check Eligibility"
+        />
+     );
+  }
+
   return (
     <div className="space-y-8">
-      {!eligibilityResult && (
+      {/* Show form if no eligibility result AND no MFI results (handles initial load and start over) */}
+      {!eligibilityResult && !mfiResults && (
         <LoanApplicationForm 
           onSubmit={handleEligibilitySubmit} 
           isSubmitting={isCheckingEligibility}
@@ -157,7 +241,8 @@ export default function ApplyPage() {
         </Alert>
       )}
 
-      {eligibilityResult && !isCheckingEligibility && (
+      {/* Show eligibility card if result exists and not currently searching for MFIs */}
+      {eligibilityResult && !isCheckingEligibility && !isSearchingMfis && !mfiResults && (
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="text-2xl font-headline text-teal-700 flex items-center">
@@ -208,7 +293,7 @@ export default function ApplyPage() {
                 )}
               </Button>
             )}
-             <Button variant="outline" onClick={() => { setEligibilityResult(null); setError(null); setMfiResults(null); setOriginalFormInputForMfi(null); }} className="w-full mt-2">
+             <Button variant="outline" onClick={handleStartOver} className="w-full mt-2">
                 Start Over / Modify Application
             </Button>
           </CardContent>
@@ -221,8 +306,38 @@ export default function ApplyPage() {
             <p className="mt-4 text-lg text-foreground/80">Searching for the best MFIs for you...</p>
          </div>
       )}
-
-      {mfiResults && <MfiComparisonTable mfiData={mfiResults} />}
+      
+      {/* Show MFI table if results exist and not currently checking eligibility (which implies a reset) */}
+      {mfiResults && !isCheckingEligibility && (
+        <>
+        {/* Optionally, reshow eligibility summary if needed, or a condensed version */}
+        {eligibilityResult && (
+             <Card className="shadow-md mb-6 bg-muted/50">
+                <CardHeader className="pb-2">
+                     <CardTitle className="text-xl font-headline text-teal-700 flex items-center">
+                        {eligibilityResult.isEligible && eligibilityResult.eligibleAmount > 0 ? 
+                            <CheckCircle className="mr-2 h-6 w-6 text-green-500" /> : 
+                            <XCircle className="mr-2 h-6 w-6 text-red-500" />
+                        }
+                        Eligibility Summary
+                     </CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm">
+                    <p>
+                        {eligibilityResult.isEligible && eligibilityResult.eligibleAmount > 0 
+                        ? `Based on your input, you were found eligible for approx. KES ${eligibilityResult.eligibleAmount.toLocaleString()}.`
+                        : eligibilityResult.feedback || "Eligibility was not fully confirmed."}
+                    </p>
+                    <Button variant="link" onClick={handleStartOver} className="p-0 h-auto text-accent mt-2">
+                        Start Over / Modify Application
+                    </Button>
+                </CardContent>
+             </Card>
+        )}
+        <MfiComparisonTable mfiData={mfiResults} />
+        </>
+      )}
     </div>
   );
 }
+
