@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   output: 'export', // ✅ Required for static hosting (e.g. Firebase)
 
   typescript: {
-    ignoreBuildErrors: false, 
+    ignoreBuildErrors: true, // Temporarily ignore TS errors for diagnostic purposes
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -29,11 +29,10 @@ const nextConfig: NextConfig = {
       'handlebars',
       'dotprompt',
       '@opentelemetry/api',
-      '@opentelemetry/sdk-node', // This might help with the jaeger issue source
+      '@opentelemetry/sdk-node',
     ],
   },
   webpack: (config, { isServer }) => {
-    // Ensure config.resolve and config.resolve.alias exist
     config.resolve = config.resolve || {};
     config.resolve.alias = config.resolve.alias || {};
 

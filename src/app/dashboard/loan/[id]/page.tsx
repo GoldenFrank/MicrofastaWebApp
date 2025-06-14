@@ -8,9 +8,8 @@ interface LoanDetailPageProps {
 }
 
 // generateStaticParams tells Next.js which 'id' values to pre-render.
-// It can be async if fetching data, but for static mock data, sync is also fine.
-// Let's ensure it's typed to return a Promise as is common.
-export async function generateStaticParams(): Promise<{ id: string }[]> {
+// It is synchronous for static mock data.
+export function generateStaticParams(): { id: string }[] {
   if (!mockLoanDetails || Object.keys(mockLoanDetails).length === 0) {
     console.warn("generateStaticParams: mockLoanDetails is empty or undefined. No loan detail pages will be pre-rendered.");
     return [];
@@ -22,8 +21,8 @@ export async function generateStaticParams(): Promise<{ id: string }[]> {
 }
 
 // The Page component receives resolved params.
-// It should be synchronous if not doing async work itself.
-export default function Page({ params }: LoanDetailPageProps) {
+// Making it async to try and satisfy the PageProps constraint from the error.
+export default async function Page({ params }: LoanDetailPageProps) {
   // The params.id comes from the dynamic segment [id] in the route.
   // This ID is then passed to the client component.
   return <LoanDetailClientPage loanIdFromParams={params.id} />;
