@@ -4,7 +4,7 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   // Ensure output: 'export' is NOT here for server-side features.
   typescript: {
-    ignoreBuildErrors: false, // Re-enable TypeScript error checking
+    ignoreBuildErrors: false,
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -20,7 +20,7 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
-    esmExternals: 'loose',
+    // esmExternals: 'loose', // Removed this to rely on Next.js defaults
     serverComponentsExternalPackages: [
       '@genkit-ai/googleai',
       'genkit',
@@ -28,18 +28,14 @@ const nextConfig: NextConfig = {
       'handlebars',
       'dotprompt',
       '@opentelemetry/api',
-      '@opentelemetry/sdk-node', // Keep this for Genkit's tracing
-      // 'zod', // Removed Zod from here
+      '@opentelemetry/sdk-node',
     ],
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config) => {
     config.resolve = config.resolve || {};
     config.resolve.alias = config.resolve.alias || {};
 
-    // Add the alias to prevent bundling of @opentelemetry/exporter-jaeger
     config.resolve.alias['@opentelemetry/exporter-jaeger'] = false;
-
-    // Removed the problematic alias for zod: config.resolve.alias['zod'] = 'zod/lib/index.js';
     
     return config;
   },
