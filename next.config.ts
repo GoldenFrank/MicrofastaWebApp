@@ -29,7 +29,7 @@ const nextConfig: NextConfig = {
       'dotprompt',
       '@opentelemetry/api',
       '@opentelemetry/sdk-node', // Keep this for Genkit's tracing
-      'zod', // Keep Zod here for server-side externalization; Webpack will bundle it for client components if imported there.
+      // 'zod', // Removed Zod from here
     ],
   },
   webpack: (config, { isServer }) => {
