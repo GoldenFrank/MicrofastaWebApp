@@ -21,7 +21,16 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
-    esmExternals: 'loose', 
+    esmExternals: 'loose',
+    serverComponentsExternalPackages: [
+      '@genkit-ai/googleai',
+      'genkit',
+      '@genkit-ai/core',
+      'handlebars',
+      'dotprompt',
+      '@opentelemetry/api',
+      '@opentelemetry/sdk-node', // This might help with the jaeger issue source
+    ],
   },
   webpack: (config, { isServer }) => {
     // Ensure config.resolve and config.resolve.alias exist
@@ -29,6 +38,7 @@ const nextConfig: NextConfig = {
     config.resolve.alias = config.resolve.alias || {};
 
     // Add the alias to prevent bundling of @opentelemetry/exporter-jaeger
+    // This helps if sdk-node tries to dynamically require it.
     config.resolve.alias['@opentelemetry/exporter-jaeger'] = false;
     
     return config;
