@@ -1,3 +1,4 @@
+
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
@@ -18,6 +19,9 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+  },
+  experimental: {
+    esmExternals: 'loose', // Added to help with CommonJS/ESM interop issues
   },
 };
 
