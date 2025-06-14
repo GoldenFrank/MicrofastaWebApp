@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   output: 'export', // ✅ Required for static hosting (e.g. Firebase)
 
   typescript: {
-    ignoreBuildErrors: false, // Changed to false to surface any TypeScript errors
+    ignoreBuildErrors: false, 
   },
   eslint: {
     ignoreDuringBuilds: true,
@@ -21,7 +21,18 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
-    esmExternals: 'loose', // Added to help with CommonJS/ESM interop issues
+    esmExternals: 'loose', 
+  },
+  webpack: (config, { isServer }) => {
+    // Prevent bundling of @opentelemetry/exporter-jaeger for client-side bundles
+    // It's an optional dependency for OpenTelemetry and can cause issues in static exports.
+    if (!isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@opentelemetry/exporter-jaeger': false,
+      };
+    }
+    return config;
   },
 };
 
