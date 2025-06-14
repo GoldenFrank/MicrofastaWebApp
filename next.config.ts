@@ -2,7 +2,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // REMOVED: output: 'export', - This allows for server-side features.
+  // Ensure output: 'export' is NOT here for server-side features.
   typescript: {
     ignoreBuildErrors: false, // Re-enable TypeScript error checking
   },
@@ -29,7 +29,7 @@ const nextConfig: NextConfig = {
       'dotprompt',
       '@opentelemetry/api',
       '@opentelemetry/sdk-node', // Keep this for Genkit's tracing
-      'zod', // Added zod here
+      'zod', // Keep Zod here for server-side externalization if also used directly by server components/actions
     ],
   },
   webpack: (config, { isServer }) => {
@@ -37,9 +37,13 @@ const nextConfig: NextConfig = {
     config.resolve.alias = config.resolve.alias || {};
 
     // Add the alias to prevent bundling of @opentelemetry/exporter-jaeger
-    // This helps if sdk-node tries to dynamically require it.
-    // This should apply for server-side builds as well.
     config.resolve.alias['@opentelemetry/exporter-jaeger'] = false;
+
+    // Attempt to force Zod to use its CJS build if SWC is failing on the .mjs file for client bundles
+    // This might help if the ENOENT for zod/lib/index.mjs is due to SWC/Webpack issues with ESM
+    if (!isServer) { // Apply this alias primarily for client-side bundles where SWC processes Zod
+        config.resolve.alias['zod'] = 'zod/lib/index.js';
+    }
     
     return config;
   },
