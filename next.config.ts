@@ -1,7 +1,8 @@
-import type {NextConfig} from 'next';
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: 'export', // ✅ Required for static hosting (e.g. Firebase)
+
   typescript: {
     ignoreBuildErrors: true,
   },
