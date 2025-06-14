@@ -8,7 +8,7 @@ interface LoanDetailPageProps {
 }
 
 // This page will be server-rendered or client-navigated.
-// generateStaticParams is not needed when not using output: 'export'.
+// It acts as a Server Component wrapper for the client component.
 export default function Page({ params }: LoanDetailPageProps) {
   return <LoanDetailClientPage loanIdFromParams={params.id} />;
 }
