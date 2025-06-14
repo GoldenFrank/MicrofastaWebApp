@@ -24,14 +24,13 @@ const nextConfig: NextConfig = {
     esmExternals: 'loose', 
   },
   webpack: (config, { isServer }) => {
-    // Prevent bundling of @opentelemetry/exporter-jaeger for client-side bundles
-    // It's an optional dependency for OpenTelemetry and can cause issues in static exports.
-    if (!isServer) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        '@opentelemetry/exporter-jaeger': false,
-      };
-    }
+    // Prevent bundling of @opentelemetry/exporter-jaeger, an optional dependency.
+    // This can cause issues if not installed, especially for static exports.
+    // Applying it unconditionally to cover both client and server-like parts of the build.
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@opentelemetry/exporter-jaeger': false,
+    };
     return config;
   },
 };
