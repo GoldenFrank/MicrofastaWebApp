@@ -29,6 +29,7 @@ const nextConfig: NextConfig = {
       'dotprompt',
       '@opentelemetry/api',
       '@opentelemetry/sdk-node', // Keep this for Genkit's tracing
+      'zod', // Added zod here
     ],
   },
   webpack: (config, { isServer }) => {
