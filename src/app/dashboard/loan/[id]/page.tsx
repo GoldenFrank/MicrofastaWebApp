@@ -27,6 +27,14 @@ type LoanDetail = LoanApplication & {
   // buyOffDetails is already optional in LoanApplication via DashboardLoanCard
 };
 
+// Function to generate static paths for Next.js export
+export async function generateStaticParams() {
+  const loanIds = Object.keys(mockLoanDetails);
+  return loanIds.map((id) => ({
+    id: id,
+  }));
+}
+
 interface InfoItemProps {
   icon: React.ReactNode;
   label: string;
@@ -251,3 +259,6 @@ export default function LoanDetailPage() {
     </div>
   );
 }
+
+
+    
