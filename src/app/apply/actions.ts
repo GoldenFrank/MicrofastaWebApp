@@ -4,9 +4,15 @@
 import { matchMfiInstitutions, type MfiMatchingInput, type MfiMatchingOutput } from '@/ai/flows/mfi-matching';
 import { checkLoanEligibility, type EligibilityCheckInput, type EligibilityCheckOutput } from '@/ai/flows/eligibility-check';
 
-export async function submitLoanApplicationAction(data: MfiMatchingInput): Promise<MfiMatchingOutput | { error: string }> {
+// Renamed from submitLoanApplicationAction for clarity
+export async function findMatchingMfisAction(data: MfiMatchingInput): Promise<MfiMatchingOutput | { error: string }> {
   try {
-    const result = await matchMfiInstitutions(data);
+    // Ensure creditScore is provided, defaulting to 0 if not present
+    const inputWithDefaultCreditScore = {
+      ...data,
+      creditScore: data.creditScore ?? 0,
+    };
+    const result = await matchMfiInstitutions(inputWithDefaultCreditScore);
     return result;
   } catch (error) {
     console.error("Error in AI MFI matching flow:", error);

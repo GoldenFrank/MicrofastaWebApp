@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import LoanApplicationForm, { type LoanApplicationFormValues } from '@/components/loan/LoanApplicationForm';
 import MfiComparisonTable from '@/components/loan/MfiComparisonTable';
 import { type MfiMatchingInput, type MfiMatchingOutput } from '@/ai/flows/mfi-matching';
-import { type EligibilityCheckOutput } from '@/ai/flows/eligibility-check'; // Keep type for state if needed
+import { type EligibilityCheckInput, type EligibilityCheckOutput } from '@/ai/flows/eligibility-check';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -13,7 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Terminal, Loader2, CheckCircle, XCircle, Info, ThumbsUp, Search, ServerCrash } from "lucide-react";
-// Removed: import { submitLoanApplicationAction, checkLoanEligibilityAction } from './actions';
+import { findMatchingMfisAction, checkLoanEligibilityAction } from './actions'; // Restored and potentially renamed action
 
 const SESSION_STORAGE_ELIGIBILITY_RESULT_KEY = 'eligibilityResult';
 const SESSION_STORAGE_ORIGINAL_FORM_INPUT_KEY = 'originalFormInputForMfi';
@@ -97,62 +97,78 @@ export default function ApplyPage() {
     setError(null);
     setEligibilityResult(null);
     setMfiResults(null);
-    setOriginalFormInputForMfi(null);
+    setOriginalFormInputForMfi(null); // Clear previous MFI input
     clearSessionStorageState();
 
-    const featureUnavailableError = "AI-powered eligibility check is not available in this static version of the app as Server Actions are not supported with static export.";
-    setError(featureUnavailableError);
-    toast({
-      variant: "destructive",
-      title: "Feature Unavailable",
-      description: featureUnavailableError,
-      duration: 7000,
-      icon: <ServerCrash className="h-5 w-5" />,
-    });
-    
-    // Simulate a non-eligible or default state to allow UI to progress if needed for other parts
-    const simulatedResult: EligibilityCheckOutput = {
-      isEligible: false,
-      eligibleAmount: 0,
-      feedback: "Eligibility check feature is currently disabled for static export.",
-      missingInfo: []
+    const eligibilityData: EligibilityCheckInput = {
+      logbookDetails: data.logbookDetails,
+      requestedLoanAmount: data.loanAmount,
+      monthlyIncome: data.monthlyIncome,
+      mpesaStatementProvided: !!data.mpesaStatement, // Assuming presence of file means provided
     };
-    setEligibilityResult(simulatedResult);
-    persistStateToSessionStorage({ eligibility: simulatedResult });
 
-    // Still save original form input for MFI matching if it were to proceed (though it also won't)
-     const mfiMatchingData: MfiMatchingInput = {
+    const mfiMatchingData: MfiMatchingInput = {
         logbookDetails: data.logbookDetails,
-        nationalId: data.nationalId,
+        nationalId: data.nationalId, // Make sure this is collected by the form
         loanAmount: data.loanAmount,
-        employmentStatus: data.employmentStatus,
-        location: data.location,
-        creditScore: 0,
+        employmentStatus: data.employmentStatus, // Make sure this is collected
+        location: data.location, // Make sure this is collected
+        // creditScore can be optional or defaulted in the AI flow if not collected
     };
-    setOriginalFormInputForMfi(mfiMatchingData);
-    persistStateToSessionStorage({ formInput: mfiMatchingData });
 
-    setIsCheckingEligibility(false);
+    try {
+      const result = await checkLoanEligibilityAction(eligibilityData);
+      if ('error' in result) {
+        setError(result.error);
+        toast({ variant: "destructive", title: "Eligibility Check Failed", description: result.error });
+        setEligibilityResult({ // Set a default non-eligible state on error
+            isEligible: false, eligibleAmount: 0, feedback: `Eligibility check failed: ${result.error}`, missingInfo: []
+        });
+      } else {
+        setEligibilityResult(result);
+        setOriginalFormInputForMfi(mfiMatchingData); // Save form input for MFI search
+        persistStateToSessionStorage({ eligibility: result, formInput: mfiMatchingData });
+        toast({ title: "Eligibility Checked", description: "Review your eligibility and proceed to find MFIs.", icon: <CheckCircle className="h-5 w-5 text-green-500" /> });
+      }
+    } catch (e: any) {
+      setError(e.message || "An unexpected error occurred during eligibility check.");
+      toast({ variant: "destructive", title: "Error", description: e.message || "An unexpected error occurred." });
+      setEligibilityResult({ // Set a default non-eligible state on error
+            isEligible: false, eligibleAmount: 0, feedback: `An unexpected error occurred: ${e.message}`, missingInfo: []
+      });
+    } finally {
+      setIsCheckingEligibility(false);
+    }
   };
 
   const handleMfiSearch = async () => {
+    if (!originalFormInputForMfi) {
+      setError("Original application data is missing. Please fill the form again.");
+      toast({ variant: "destructive", title: "Error", description: "Cannot search MFIs without application data." });
+      return;
+    }
     setIsSearchingMfis(true);
-    setError(null);
-    setMfiResults(null);
+    setError(null); // Clear previous errors
+    setMfiResults(null); // Clear previous MFI results
 
-    const featureUnavailableError = "AI-powered MFI matching is not available in this static version of the app as Server Actions are not supported with static export.";
-    setError(featureUnavailableError);
-    toast({
-      variant: "destructive",
-      title: "Feature Unavailable",
-      description: featureUnavailableError,
-      duration: 7000,
-      icon: <ServerCrash className="h-5 w-5" />,
-    });
-
-    setMfiResults([]); // Set to empty array to show "No MFI Matches" or similar in the table
-    persistStateToSessionStorage({ mfis: [] });
-    setIsSearchingMfis(false);
+    try {
+      const result = await findMatchingMfisAction(originalFormInputForMfi);
+      if ('error' in result) {
+        setError(result.error);
+        toast({ variant: "destructive", title: "MFI Search Failed", description: result.error });
+        setMfiResults([]); // Set to empty to show "No MFI Matches" in table
+      } else {
+        setMfiResults(result);
+        persistStateToSessionStorage({ mfis: result });
+        toast({ title: "MFIs Found", description: "Review the matched Microfinance Institutions.", icon: <Search className="h-5 w-5 text-blue-500" /> });
+      }
+    } catch (e: any) {
+      setError(e.message || "An unexpected error occurred during MFI search.");
+      toast({ variant: "destructive", title: "Error", description: e.message || "An unexpected error occurred." });
+      setMfiResults([]);
+    } finally {
+      setIsSearchingMfis(false);
+    }
   };
 
   const handleStartOver = () => {
@@ -172,16 +188,6 @@ export default function ApplyPage() {
     );
   }
 
-  if (!eligibilityResult && !mfiResults) {
-     return (
-        <LoanApplicationForm 
-          onSubmit={handleEligibilitySubmit} 
-          isSubmitting={isCheckingEligibility}
-          submitButtonText="Check Eligibility"
-        />
-     );
-  }
-
   return (
     <div className="space-y-8">
       {!eligibilityResult && !mfiResults && (
@@ -198,14 +204,15 @@ export default function ApplyPage() {
             <p className="mt-4 text-lg text-foreground/80">Checking your eligibility...</p>
          </div>
       )}
-
+      
       {error && !isCheckingEligibility && !isSearchingMfis && (
         <Alert variant="destructive" className="mt-6">
           <ServerCrash className="h-4 w-4" />
-          <AlertTitle>Feature Unavailable</AlertTitle>
+          <AlertTitle>An Error Occurred</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
+
 
       {eligibilityResult && !isCheckingEligibility && !isSearchingMfis && !mfiResults && (
         <Card className="shadow-lg">
@@ -219,15 +226,16 @@ export default function ApplyPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {/* Display feedback based on eligibilityResult, which will now be the simulated one if server actions are off */}
             <Alert variant={eligibilityResult.isEligible && eligibilityResult.eligibleAmount > 0 ? "default" : "destructive"}
                    className={eligibilityResult.isEligible && eligibilityResult.eligibleAmount > 0 ? "border-green-500 bg-green-50/50" : ""}>
                 {eligibilityResult.isEligible && eligibilityResult.eligibleAmount > 0 ? <ThumbsUp className="h-4 w-4 text-green-600" /> : <Info className="h-4 w-4" />}
                 <AlertTitle className={eligibilityResult.isEligible && eligibilityResult.eligibleAmount > 0 ? "text-green-700" : ""}>
-                    {eligibilityResult.isEligible && eligibilityResult.eligibleAmount > 0 ? "Positive Indication (Simulated)" : "Regarding Your Eligibility"}
+                    {eligibilityResult.isEligible && eligibilityResult.eligibleAmount > 0 ? 
+                        `Eligible for approx. KES ${eligibilityResult.eligibleAmount.toLocaleString()}` : 
+                        "Eligibility Assessment"}
                 </AlertTitle>
                 <AlertDescription className={eligibilityResult.isEligible && eligibilityResult.eligibleAmount > 0 ? "text-green-600" : ""}>
-                {eligibilityResult.feedback || "Could not determine full eligibility with provided details."}
+                {eligibilityResult.feedback}
                 {eligibilityResult.missingInfo && eligibilityResult.missingInfo.length > 0 && (
                     <div className="mt-2">
                     <strong>Missing information that affected assessment:</strong>
@@ -239,12 +247,14 @@ export default function ApplyPage() {
                 </AlertDescription>
             </Alert>
 
-            {originalFormInputForMfi && !mfiResults && ( // Button to search MFIs, will also show error
-              <Button onClick={handleMfiSearch} disabled={isSearchingMfis} className="w-full mt-4 bg-accent hover:bg-accent/90">
+            {originalFormInputForMfi && !mfiResults && (
+              <Button onClick={handleMfiSearch} disabled={isSearchingMfis || !eligibilityResult.isEligible} className="w-full mt-4 bg-accent hover:bg-accent/90">
                 {isSearchingMfis ? (
                   <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Searching for MFIs...</>
                 ) : (
-                  <><Search className="mr-2 h-4 w-4" />Proceed to Find Matching MFIs</>
+                  <><Search className="mr-2 h-4 w-4" />
+                  {eligibilityResult.isEligible ? 'Find Matching MFIs' : 'Eligibility Not Met for MFI Search'}
+                  </>
                 )}
               </Button>
             )}
@@ -277,7 +287,8 @@ export default function ApplyPage() {
                 </CardHeader>
                 <CardContent className="text-sm">
                     <p>
-                        {eligibilityResult.feedback || "Eligibility was not fully confirmed."}
+                        {eligibilityResult.isEligible ? `Based on your input, you are provisionally eligible for an estimated KES ${eligibilityResult.eligibleAmount.toLocaleString()}.` : "Based on your input, you may not be eligible for a loan at this time."}
+                        <br/> {eligibilityResult.feedback}
                     </p>
                     <Button variant="link" onClick={handleStartOver} className="p-0 h-auto text-accent mt-2">
                         Start Over / Modify Application

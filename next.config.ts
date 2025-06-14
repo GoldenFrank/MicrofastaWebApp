@@ -2,8 +2,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  output: 'export', // ✅ Required for static hosting (e.g. Firebase)
-
+  // REMOVED: output: 'export', - This allows for server-side features.
   typescript: {
     ignoreBuildErrors: false, // Re-enable TypeScript error checking
   },
@@ -29,7 +28,7 @@ const nextConfig: NextConfig = {
       'handlebars',
       'dotprompt',
       '@opentelemetry/api',
-      '@opentelemetry/sdk-node',
+      '@opentelemetry/sdk-node', // Keep this for Genkit's tracing
     ],
   },
   webpack: (config, { isServer }) => {
@@ -38,6 +37,7 @@ const nextConfig: NextConfig = {
 
     // Add the alias to prevent bundling of @opentelemetry/exporter-jaeger
     // This helps if sdk-node tries to dynamically require it.
+    // This should apply for server-side builds as well.
     config.resolve.alias['@opentelemetry/exporter-jaeger'] = false;
     
     return config;
