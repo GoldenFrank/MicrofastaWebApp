@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   output: 'export', // ✅ Required for static hosting (e.g. Firebase)
 
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false, // Changed to false to surface any TypeScript errors
   },
   eslint: {
     ignoreDuringBuilds: true,

@@ -13,18 +13,18 @@ const ptSans = PT_Sans({
   subsets: ['latin'],
   weight: ['400', '700'],
   variable: '--font-pt-sans',
-  display: 'swap', // Added display: 'swap'
+  display: 'swap',
 });
 
 const playfairDisplay = Playfair_Display({
   subsets: ['latin'],
   weight: ['400', '700', '900'],
   variable: '--font-playfair-display',
-  display: 'swap', // Added display: 'swap'
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: 'Logbook Loan Compass', // Updated title
+  title: 'Logbook Loan Compass',
   description: 'Compare offers from top MFIs in Kenya. Fast approval, competitive rates, and transparent terms.',
 };
 
@@ -35,14 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${ptSans.variable} ${playfairDisplay.variable}`}>
-      <head>
-        {/*
-          The Google Fonts <link> tags were removed because next/font automatically
-          optimizes and includes the fonts. Adding them here would be redundant
-          and could potentially lead to conflicts or double-loading.
-          next/font handles inlining font CSS and serving fonts efficiently.
-        */}
-      </head>
+      {/* The explicit <head></head> tag has been removed. Next.js will manage head content. */}
       <body className="font-body antialiased flex flex-col min-h-screen bg-background">
         <AuthProvider>
           <Header />
