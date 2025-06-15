@@ -1,0 +1,24 @@
+
+{
+  "name": "Logbook Loan Compass",
+  "short_name": "MicroFasta",
+  "description": "Compare offers from top MFIs in Kenya. Fast approval, competitive rates, and transparent terms.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F0F8FF",
+  "theme_color": "#2E86AB",
+  "icons": [
+    {
+      "src": "https://placehold.co/192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://placehold.co/512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
