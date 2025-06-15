@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Construct the redirect query parameter more safely
       const redirectQuery = searchParams.toString();
       const fullRedirectPath = pathname + (redirectQuery ? `?${redirectQuery}` : '');
-      router.push(`/login?redirect=${encodeURIComponent(fullRedirectPath)}`); // push is appropriate here to allow back to original attempt
+      router.push(`/login?redirect=${encodeURIComponent(fullRedirectPath)}`); 
     }
   }, [user, loading, pathname, router, searchParams]);
   
@@ -79,13 +79,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (redirectUrl) {
       try {
         const decodedRedirectUrl = decodeURIComponent(redirectUrl);
-        router.replace(decodedRedirectUrl);
+        router.push(decodedRedirectUrl);
       } catch (decodeError) {
         console.error("Error decoding redirect URL, navigating to dashboard:", decodeError);
-        router.replace('/dashboard');
+        router.push('/dashboard');
       }
     } else {
-      router.replace('/dashboard');
+      router.push('/dashboard');
     }
   };
 
@@ -156,7 +156,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await firebaseSignOut(auth);
       setUser(null); // Explicitly set user to null
-      router.replace('/login'); 
+      router.push('/login'); 
     } catch (error: any) {
       console.error("Logout failed:", error);
       toast({
