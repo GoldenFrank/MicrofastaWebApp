@@ -4,7 +4,7 @@ import LoanDetailClientPage from '@/components/loan/LoanDetailClientPage';
 // Define props for the page component
 interface LoanDetailPageProps {
   params: { id: string };
-  // searchParams could also be added here if needed: searchParams: { [key: string]: string | string[] | undefined };
+  searchParams?: { [key: string]: string | string[] | undefined }; // Added optional searchParams
 }
 
 // This page will be server-rendered or client-navigated.
