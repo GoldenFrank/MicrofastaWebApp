@@ -1,11 +1,9 @@
 
-'use client'; // Added to enable client-side interactivity
-
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Car, Clock, Shield, Smartphone, Eye, Rocket, GitCompareArrows, FileText as FileTextIcon, BarChartBig as AssessmentIcon, Banknote as GetFundedIcon, Phone, Mail } from "lucide-react";
-
+import HowItWorksClientButton from "@/components/home/HowItWorksClientButton"; // New Client Component
 
 export default function HomePage() {
   return (
@@ -35,15 +33,7 @@ export default function HomePage() {
                     Start Application
                   </Link>
                 </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="border-2 border-yellow-300 text-yellow-300 hover:bg-yellow-300 hover:text-teal-900 text-lg font-semibold px-8 py-4 h-auto transition-all duration-200"
-                  onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
-                >
-                  <Clock className="mr-2 h-5 w-5" />
-                  How It Works
-                </Button>
+                <HowItWorksClientButton /> {/* Using the new Client Component */}
               </div>
               <div className="flex flex-wrap gap-x-8 gap-y-4 text-teal-100 max-w-md">
                 <div className="flex items-center space-x-2">
@@ -215,4 +205,3 @@ const FeatureCard = ({ icon, title, description }: FeatureCardProps) => (
     </CardContent>
   </Card>
 );
-
