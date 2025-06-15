@@ -19,19 +19,17 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {
-    serverComponentsExternalPackages: [
-      '@genkit-ai/googleai',
-      'genkit',
-      '@genkit-ai/core',
-      'zod', 
-      'handlebars',
-      'dotprompt',
-      '@opentelemetry/api',
-      '@opentelemetry/sdk-node',
-      'lucide-react', // Added lucide-react here
-    ],
-  },
+  serverExternalPackages: [ // Renamed from experimental.serverComponentsExternalPackages
+    '@genkit-ai/googleai',
+    'genkit',
+    '@genkit-ai/core',
+    'zod', 
+    'handlebars',
+    'dotprompt',
+    '@opentelemetry/api',
+    '@opentelemetry/sdk-node',
+    // lucide-react removed from here to resolve conflict with transpilePackages
+  ],
   webpack: (config, { isServer }) => {
     config.resolve = config.resolve || {};
     config.resolve.alias = config.resolve.alias || {};
