@@ -35,6 +35,7 @@ export async function checkLoanEligibility(input: EligibilityCheckInput): Promis
 
 const prompt = ai.definePrompt({
   name: 'eligibilityCheckPrompt',
+  model: 'googleai/gemini-2.0-flash', // Explicitly define the model
   input: {
     schema: EligibilityCheckInputSchema,
   },

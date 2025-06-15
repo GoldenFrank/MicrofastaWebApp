@@ -2,9 +2,10 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-// Button component is removed as it's no longer used for "View Details"
-import { CalendarDays, DollarSign, Info, CheckCircle, AlertCircle, XCircle, Hourglass, Banknote, ListChecks, Shuffle, FileUp, UserCog, FileSearch } from "lucide-react";
-// Link component is removed as it's no longer used for "View Details"
+import { Button } from "@/components/ui/button"; // Import Button
+import Link from 'next/link'; // Import Link
+import { CalendarDays, DollarSign, Info, CheckCircle, AlertCircle, XCircle, Hourglass, Banknote, ListChecks, Shuffle, FileUp, UserCog, FileSearch, Eye } from "lucide-react";
+
 
 export interface LoanApplication {
   id: string;
@@ -55,7 +56,7 @@ const statusConfig: Record<LoanApplication['status'], { color: string; textColor
     color: "bg-indigo-500",
     textColor: "text-indigo-50",
     progress: 60,
-    icon: <UserCog className="w-4 h-4 mr-2" />, // Consider specific icon for MFI review
+    icon: <UserCog className="w-4 h-4 mr-2" />, 
     description: "MFI is currently reviewing your submitted documents."
   },
   'Approved': {
@@ -140,11 +141,12 @@ export default function DashboardLoanCard({ loan }: DashboardLoanCardProps) {
           <p className="text-xs text-muted-foreground mt-1 text-right">{config.progress}% Complete</p>
         </div>
       </CardContent>
-      <CardFooter>
-        {/* "View Details" button has been removed */}
-        <p className="text-xs text-muted-foreground w-full text-center">
-          Detailed loan view is temporarily unavailable.
-        </p>
+      <CardFooter className="pt-4 border-t">
+        <Button asChild variant="outline" size="sm" className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+          <Link href={`/dashboard/loan/${loan.id}`}>
+            <Eye className="mr-2 h-4 w-4" /> View Details
+          </Link>
+        </Button>
       </CardFooter>
     </Card>
   );

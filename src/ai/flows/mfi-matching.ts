@@ -49,6 +49,7 @@ export async function matchMfiInstitutions(input: MfiMatchingInput): Promise<Mfi
 
 const prompt = ai.definePrompt({
   name: 'mfiMatchingPrompt',
+  model: 'googleai/gemini-2.0-flash', // Explicitly define the model
   input: {
     schema: MfiMatchingInputSchema,
   },
@@ -143,3 +144,4 @@ const matchMfiInstitutionsFlow = ai.defineFlow(
     return output!;
   }
 );
+
