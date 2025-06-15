@@ -13,7 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Terminal, Loader2, CheckCircle, XCircle, Info, ThumbsUp, Search, ServerCrash } from "lucide-react";
-import { findMatchingMfisAction, checkLoanEligibilityAction } from './actions'; // Restored and potentially renamed action
+import { findMatchingMfisAction, checkLoanEligibilityAction } from './actions';
 
 const SESSION_STORAGE_ELIGIBILITY_RESULT_KEY = 'eligibilityResult';
 const SESSION_STORAGE_ORIGINAL_FORM_INPUT_KEY = 'originalFormInputForMfi';
@@ -29,14 +29,11 @@ export default function ApplyPage() {
   const [error, setError] = useState<string | null>(null);
   
   const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
+  const router = useRouter(); // Keep for other navigation if needed, but AuthContext handles initial auth redirect
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/login?redirect=/apply');
-    }
-  }, [user, authLoading, router]);
+  // AuthContext will handle redirecting if user is not authenticated and this is a protected route.
+  // So, the local useEffect for this purpose can be removed.
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -97,23 +94,22 @@ export default function ApplyPage() {
     setError(null);
     setEligibilityResult(null);
     setMfiResults(null);
-    setOriginalFormInputForMfi(null); // Clear previous MFI input
+    setOriginalFormInputForMfi(null); 
     clearSessionStorageState();
 
     const eligibilityData: EligibilityCheckInput = {
       logbookDetails: data.logbookDetails,
       requestedLoanAmount: data.loanAmount,
       monthlyIncome: data.monthlyIncome,
-      mpesaStatementProvided: !!data.mpesaStatement, // Assuming presence of file means provided
+      mpesaStatementProvided: !!data.mpesaStatement, 
     };
 
     const mfiMatchingData: MfiMatchingInput = {
         logbookDetails: data.logbookDetails,
-        nationalId: data.nationalId, // Make sure this is collected by the form
+        nationalId: data.nationalId, 
         loanAmount: data.loanAmount,
-        employmentStatus: data.employmentStatus, // Make sure this is collected
-        location: data.location, // Make sure this is collected
-        // creditScore can be optional or defaulted in the AI flow if not collected
+        employmentStatus: data.employmentStatus, 
+        location: data.location, 
     };
 
     try {
@@ -121,19 +117,19 @@ export default function ApplyPage() {
       if ('error' in result) {
         setError(result.error);
         toast({ variant: "destructive", title: "Eligibility Check Failed", description: result.error });
-        setEligibilityResult({ // Set a default non-eligible state on error
+        setEligibilityResult({ 
             isEligible: false, eligibleAmount: 0, feedback: `Eligibility check failed: ${result.error}`, missingInfo: []
         });
       } else {
         setEligibilityResult(result);
-        setOriginalFormInputForMfi(mfiMatchingData); // Save form input for MFI search
+        setOriginalFormInputForMfi(mfiMatchingData); 
         persistStateToSessionStorage({ eligibility: result, formInput: mfiMatchingData });
         toast({ title: "Eligibility Checked", description: "Review your eligibility and proceed to find MFIs.", icon: <CheckCircle className="h-5 w-5 text-green-500" /> });
       }
     } catch (e: any) {
       setError(e.message || "An unexpected error occurred during eligibility check.");
       toast({ variant: "destructive", title: "Error", description: e.message || "An unexpected error occurred." });
-      setEligibilityResult({ // Set a default non-eligible state on error
+      setEligibilityResult({ 
             isEligible: false, eligibleAmount: 0, feedback: `An unexpected error occurred: ${e.message}`, missingInfo: []
       });
     } finally {
@@ -148,15 +144,15 @@ export default function ApplyPage() {
       return;
     }
     setIsSearchingMfis(true);
-    setError(null); // Clear previous errors
-    setMfiResults(null); // Clear previous MFI results
+    setError(null); 
+    setMfiResults(null); 
 
     try {
       const result = await findMatchingMfisAction(originalFormInputForMfi);
       if ('error' in result) {
         setError(result.error);
         toast({ variant: "destructive", title: "MFI Search Failed", description: result.error });
-        setMfiResults([]); // Set to empty to show "No MFI Matches" in table
+        setMfiResults([]); 
       } else {
         setMfiResults(result);
         persistStateToSessionStorage({ mfis: result });

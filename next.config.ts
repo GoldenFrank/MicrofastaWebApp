@@ -19,7 +19,8 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  serverExternalPackages: [ // Renamed from experimental.serverComponentsExternalPackages
+  // Moved serverExternalPackages to top-level and removed lucide-react
+  serverExternalPackages: [ 
     '@genkit-ai/googleai',
     'genkit',
     '@genkit-ai/core',
@@ -28,7 +29,6 @@ const nextConfig: NextConfig = {
     'dotprompt',
     '@opentelemetry/api',
     '@opentelemetry/sdk-node',
-    // lucide-react removed from here to resolve conflict with transpilePackages
   ],
   webpack: (config, { isServer }) => {
     config.resolve = config.resolve || {};
