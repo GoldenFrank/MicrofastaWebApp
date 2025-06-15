@@ -25,7 +25,7 @@ const playfairDisplay = Playfair_Display({
 export const metadata: Metadata = {
   title: 'Logbook Loan Compass',
   description: 'Compare offers from top MFIs in Kenya. Fast approval, competitive rates, and transparent terms.',
-  manifest: '/manifest.json', // Add manifest link here
+  manifest: '/manifest.json', 
 };
 
 export default function RootLayout({
@@ -36,19 +36,17 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${ptSans.variable} ${playfairDisplay.variable}`}>
       <head>
-        {/* Standard PWA meta tags */}
         <meta name="application-name" content="MicroFasta" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="MicroFasta" />
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="msapplication-config" content="/icons/browserconfig.xml" />
+        <meta name="msapplication-config" content="/icons/browserconfig.xml" /> {/* Ensure browserconfig.xml exists if you use this */}
         <meta name="msapplication-TileColor" content="#2E86AB" />
         <meta name="msapplication-tap-highlight" content="no" />
         <meta name="theme-color" content="#2E86AB" />
 
-        {/* Placeholder icons for apple-touch-icon, you'll want to replace these paths with actual icon files */}
         <link rel="apple-touch-icon" href="https://placehold.co/180x180.png" data-ai-hint="app icon" />
         <link rel="apple-touch-icon" sizes="152x152" href="https://placehold.co/152x152.png" data-ai-hint="app icon" />
         <link rel="apple-touch-icon" sizes="180x180" href="https://placehold.co/180x180.png" data-ai-hint="app icon" />
@@ -57,9 +55,6 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="32x32" href="https://placehold.co/32x32.png" data-ai-hint="favicon" />
         <link rel="icon" type="image/png" sizes="16x16" href="https://placehold.co/16x16.png" data-ai-hint="favicon" />
         
-        {/* We link manifest.json in metadata now, but this is an alternative place */}
-        {/* <link rel="manifest" href="/manifest.json" /> */}
-
       </head>
       <body className="font-body antialiased flex flex-col min-h-screen bg-background">
         <AuthProvider>
@@ -74,11 +69,20 @@ export default function RootLayout({
           {`
             if ('serviceWorker' in navigator) {
               window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').then(registration => {
-                  console.log('SW registered: ', registration);
-                }).catch(registrationError => {
-                  console.log('SW registration failed: ', registrationError);
-                });
+                navigator.serviceWorker.register('/sw.js')
+                  .then(registration => {
+                    console.log('SW registered: ', registration);
+                  })
+                  .catch(error => {
+                    console.error('SW registration failed. Details:', error);
+                    if (error instanceof Event) {
+                      console.error('The caught error during SW registration is an Event object. Type: ' + error.type);
+                    } else if (error instanceof Error) {
+                      console.error('SW Registration Error Name: ' + error.name + ', Message: ' + error.message + ', Stack: ' + (error.stack ? error.stack.substring(0, 300) : 'N/A'));
+                    } else {
+                      console.error('SW Registration failed with a non-Error, non-Event object:', error);
+                    }
+                  });
               });
             }
           `}
