@@ -2,9 +2,9 @@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+// Button component is removed as it's no longer used for "View Details"
 import { CalendarDays, DollarSign, Info, CheckCircle, AlertCircle, XCircle, Hourglass, Banknote, ListChecks, Shuffle, FileUp, UserCog, FileSearch } from "lucide-react";
-import Link from "next/link";
+// Link component is removed as it's no longer used for "View Details"
 
 export interface LoanApplication {
   id: string;
@@ -141,9 +141,10 @@ export default function DashboardLoanCard({ loan }: DashboardLoanCardProps) {
         </div>
       </CardContent>
       <CardFooter>
-        <Button variant="outline" size="sm" asChild className="w-full border-accent text-accent hover:bg-accent hover:text-accent-foreground">
-          <Link href={`/dashboard/loan/${loan.id}`}>View Details</Link>
-        </Button>
+        {/* "View Details" button has been removed */}
+        <p className="text-xs text-muted-foreground w-full text-center">
+          Detailed loan view is temporarily unavailable.
+        </p>
       </CardFooter>
     </Card>
   );
