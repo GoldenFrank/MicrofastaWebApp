@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Car, Clock, Shield, Smartphone, Eye, Rocket, GitCompareArrows, FileText as FileTextIcon, BarChartBig as AssessmentIcon, Banknote as GetFundedIcon, Phone, Mail } from "lucide-react";
-import HowItWorksClientButton from "@/components/home/HowItWorksClientButton"; // New Client Component
+import HowItWorksClientButton from "@/components/home/HowItWorksClientButton";
 
 export default function HomePage() {
   return (
@@ -11,7 +11,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-teal-400 to-cyan-600 text-white py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-12 items-center"> {/* Removed lg:grid-cols-2 as image is removed */}
+          <div className="grid grid-cols-1 gap-12 items-center">
             <div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 font-headline">
                 Get your Logbook Loan approved in{" "}
@@ -33,7 +33,7 @@ export default function HomePage() {
                     Start Application
                   </Link>
                 </Button>
-                <HowItWorksClientButton /> {/* Using the new Client Component */}
+                <HowItWorksClientButton />
               </div>
               <div className="flex flex-wrap gap-x-8 gap-y-4 text-teal-100 max-w-md">
                 <div className="flex items-center space-x-2">
@@ -50,7 +50,6 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-            {/* Removed Image Section */}
           </div>
         </div>
       </section>
@@ -154,8 +153,6 @@ export default function HomePage() {
         </div>
       </section>
       
-      {/* Removed Contact Us Section */}
-
       {/* Call to Action */}
       <section className="bg-gradient-to-br from-cyan-600 to-teal-700 text-yellow-50 py-16 md:py-20 text-center">
         <div className="max-w-4xl mx-auto px-6 lg:px-8">
@@ -174,7 +171,7 @@ export default function HomePage() {
           <p className="text-lg text-teal-100 mt-8 mb-4">
             Have questions or need assistance? Our team is ready to help you.
           </p>
-          <div className="mt-4 text-teal-100 space-y-2 md:space-y-0 md:flex md:justify-center md:items-center md:gap-6"> {/* Adjusted margin from mt-8 to mt-4 */}
+          <div className="mt-4 text-teal-100 space-y-2 md:space-y-0 md:flex md:justify-center md:items-center md:gap-6">
             <a href="tel:0742241585" className="flex items-center justify-center hover:text-yellow-300 transition-colors">
               <Phone className="mr-2 h-5 w-5"/> Call us: 0742241585
             </a>
@@ -205,3 +202,4 @@ const FeatureCard = ({ icon, title, description }: FeatureCardProps) => (
     </CardContent>
   </Card>
 );
+
