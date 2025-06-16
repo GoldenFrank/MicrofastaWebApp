@@ -25,7 +25,37 @@ const playfairDisplay = Playfair_Display({
 export const metadata: Metadata = {
   title: 'Logbook Loan Compass',
   description: 'Compare offers from top MFIs in Kenya. Fast approval, competitive rates, and transparent terms.',
-  manifest: '/manifest.json', 
+  manifest: '/manifest.json',
+  applicationName: 'MicroFasta',
+  appleWebApp: {
+    capable: true,
+    title: 'MicroFasta',
+    statusBarStyle: 'default',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#2E86AB' },
+    { media: '(prefers-color-scheme: dark)', color: '#2E86AB' },
+  ],
+  icons: {
+    icon: [
+      { url: 'https://placehold.co/16x16.png', sizes: '16x16', type: 'image/png', attributes: {'data-ai-hint': 'favicon'} },
+      { url: 'https://placehold.co/32x32.png', sizes: '32x32', type: 'image/png', attributes: {'data-ai-hint': 'favicon'} },
+    ],
+    apple: [
+      { url: 'https://placehold.co/180x180.png', sizes: '180x180', attributes: {'data-ai-hint': 'app icon'} },
+      { url: 'https://placehold.co/152x152.png', sizes: '152x152', attributes: {'data-ai-hint': 'app icon'} },
+      { url: 'https://placehold.co/167x167.png', sizes: '167x167', attributes: {'data-ai-hint': 'app icon'} },
+    ],
+  },
+  other: {
+    'msapplication-TileColor': '#2E86AB',
+    'msapplication-config': '/icons/browserconfig.xml', // Ensure this file exists if you use this meta tag
+    'mobile-web-app-capable': 'yes',
+    'msapplication-tap-highlight': 'no',
+  }
 };
 
 export default function RootLayout({
@@ -35,27 +65,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${ptSans.variable} ${playfairDisplay.variable}`}>
-      <head>
-        <meta name="application-name" content="MicroFasta" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="MicroFasta" />
-        <meta name="format-detection" content="telephone=no" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="msapplication-config" content="/icons/browserconfig.xml" /> {/* Ensure browserconfig.xml exists if you use this */}
-        <meta name="msapplication-TileColor" content="#2E86AB" />
-        <meta name="msapplication-tap-highlight" content="no" />
-        <meta name="theme-color" content="#2E86AB" />
-
-        <link rel="apple-touch-icon" href="https://placehold.co/180x180.png" data-ai-hint="app icon" />
-        <link rel="apple-touch-icon" sizes="152x152" href="https://placehold.co/152x152.png" data-ai-hint="app icon" />
-        <link rel="apple-touch-icon" sizes="180x180" href="https://placehold.co/180x180.png" data-ai-hint="app icon" />
-        <link rel="apple-touch-icon" sizes="167x167" href="https://placehold.co/167x167.png" data-ai-hint="app icon" />
-
-        <link rel="icon" type="image/png" sizes="32x32" href="https://placehold.co/32x32.png" data-ai-hint="favicon" />
-        <link rel="icon" type="image/png" sizes="16x16" href="https://placehold.co/16x16.png" data-ai-hint="favicon" />
-        
-      </head>
+      {/* The manual <head> tag has been removed. Next.js will generate it from the metadata object. */}
       <body className="font-body antialiased flex flex-col min-h-screen bg-background">
         <AuthProvider>
           <Header />
