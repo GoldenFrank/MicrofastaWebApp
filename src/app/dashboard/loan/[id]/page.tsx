@@ -3,7 +3,11 @@ import Link from 'next/link';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import LoanDetailClientPage from './LoanDetailClientPage';
+
+// ✅ Adjusted path: one level up from [id]
+import LoanDetailClientPage from '../LoanDetailClientPage';
+
+// ✅ Assuming alias @/lib/loans works via tsconfig.json
 import { getLoanDetailsById } from '@/lib/loans';
 
 type PageProps = {
@@ -38,7 +42,10 @@ export default async function LoanDetailPage({ params }: PageProps) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <Button asChild variant="outline" size="sm" className="mb-4">
-          <Link href="/dashboard"><ArrowLeft className="mr-2 h-4 w-4" />Back to Dashboard</Link>
+          <Link href="/dashboard">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Dashboard
+          </Link>
         </Button>
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
